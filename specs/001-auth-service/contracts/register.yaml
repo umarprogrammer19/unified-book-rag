@@ -1,0 +1,53 @@
+openapi: 3.0.0
+info:
+  title: Auth Service - Register
+  version: 1.0.0
+paths:
+  /register:
+    post:
+      summary: Register a new user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Unique email address of the user
+                password:
+                  type: string
+                  format: password
+                  description: User's password
+              example:
+                email: user@example.com
+                password: securePassword123
+      responses:
+        '201':
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User registered successfully
+                  userId:
+                    type: string
+                    format: uuid
+        '400':
+          description: Invalid input or email already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid email format or Email already registered

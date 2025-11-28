@@ -1,0 +1,60 @@
+openapi: 3.0.0
+info:
+  title: Auth Service - User Profile
+  version: 1.0.0
+paths:
+  /profile:
+    patch:
+      summary: Update user profile information (role and OS)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum: [Developer, Designer]
+                  description: User's role
+                os:
+                  type: string
+                  enum: [Mac, Windows]
+                  description: User's operating system
+              example:
+                role: Developer
+                os: Mac
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Profile updated successfully
+                  userId:
+                    type: string
+                    format: uuid
+        '400':
+          description: Invalid input for role or OS
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid role or OS provided
+        '401':
+          description: Unauthorized (user not logged in)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
