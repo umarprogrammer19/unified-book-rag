@@ -1,9 +1,14 @@
 <!--
 Sync Impact Report:
-Version change: 1.0.0 -> 1.0.1
-Modified principles: Added 'Git Workflow' principle
-Added sections: '5. Git Workflow'
-Removed sections: N/A
+Version change: 1.0.1 -> 1.1.0
+Modified principles:
+- 1. Architecture -> 1. Project Goal
+- 2. The Shared Database Rule (CRITICAL) -> 2. Content Standards
+- 3. Technology Stack (Backend/Auth) -> 3. Tech Stack (Frontend focus)
+- 4. Bonus Requirements (The 300 Points) -> Removed
+- 5. Git Workflow -> Removed
+Added sections: N/A
+Removed sections: "4. Bonus Requirements (The 300 Points)", "5. Git Workflow"
 Templates requiring updates:
 - .specify/templates/plan-template.md: ⚠ pending
 - .specify/templates/spec-template.md: ⚠ pending
@@ -15,33 +20,27 @@ Follow-up TODOs:
 - TODO(templates): Review and update .specify/templates/tasks-template.md for consistency with new constitution.
 - TODO(templates): Review and update .specify/templates/commands/*.md for consistency with new constitution.
 -->
-# Project Constitution: Unified Book RAG
+# Project Constitution: Teaching Physical AI & Humanoid Robotics Course
 
-## 1. Architecture: The "Sidecar Pattern"
-* **Root (`/`)**: Main Python Backend (FastAPI + uv). Handles RAG, Translation, Personalization.
-* **`/auth_service`**: Auth Sidecar (Node.js + Better-Auth). Handles Signup/Login/Session Cookies.
-* **`/book_source`**: Frontend (Docusaurus).
+## 1. Project Goal: Phase 1 Book Generation
+*   Create a high-quality technical book: "Teaching Physical AI & Humanoid Robotics Course".
+*   Focus ONLY on Frontend (`/book_source`) development and content generation during Phase 1.
 
-## 2. The Shared Database Rule (CRITICAL)
-* Both Python (Root) and Node.js (Auth) MUST connect to the SAME Neon Postgres Database.
-* **Auth Service**: WRITES to `user` and `session` tables.
-* **Python Backend**: READS `session` table to verify users.
+## 2. Content Standards
+*   **Format**: All book content MUST be written in Markdown (`.md`) files located within `/book_source/docs/`.
+*   **Tone**: The content MUST maintain an Engineering-focused, Academic yet practical tone.
+*   **Research**: All content MUST be based on live documentation, fetched via Playwright, and NOT generated from generic AI text.
+*   **Structure**: Every chapter MUST adhere to the following structure:
+    *   "Concept" (Theory and foundational understanding)
+    *   "Simulation" (Practical guidance on running concepts in Isaac Sim/Mujoco)
+    *   "Real World Application" (Examples and discussions related to Humanoid Robots).
 
-## 3. Technology Stack
-* **Backend**: Python 3.12+, SQLModel, OpenAI Agents SDK, Qdrant.
-* **Auth**: Better-Auth (Node.js).
-* **Frontend**: Docusaurus 3.x + TailwindCSS.
-
-## 4. Bonus Requirements (The 300 Points)
-* RAG with "Selected Text" context is mandatory.
-* Personalization based on User Profile (OS/Role) is mandatory.
-* Urdu Translation via AI is mandatory.
-
-## 5. Git Workflow
-* All file changes MUST be added to the staging area using 'git add .' before committing.
+## 3. Tech Stack
+*   **Frontend**: Docusaurus 3.x for the static site generation.
+*   **Styling**: TailwindCSS for all styling requirements.
 
 ## Governance
 <!-- Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 All development and architectural decisions must comply with this constitution. Amendments to this constitution require a documented proposal, approval from the architectural review board (ARB), and a clear migration plan for existing components. All pull requests and code reviews must verify compliance with these principles.
 
-**Version**: 1.0.1 | **Ratified**: 2025-11-28 | **Last Amended**: 2025-11-28
+**Version**: 1.1.0 | **Ratified**: 2025-11-28 | **Last Amended**: 2025-11-28
