@@ -1,0 +1,109 @@
+# Chapter 5: Humanoid Locomotion - ZMP Calculation Example
+
+Building upon the theoretical understanding of the Zero Moment Point (ZMP), this section provides a conceptual code snippet and an extended practice exercise for calculating a simplified ZMP. Understanding this calculation is fundamental for implementing stable bipedal locomotion control strategies.
+
+## 4. Code Concept: Simple `calculate_zmp(force_sensors)` Function
+
+Calculating the ZMP in a real robot typically involves integrating force/torque sensor data from the feet, along with inertial measurements from IMUs and kinematic data from joint encoders. For a simplified conceptual understanding, consider a robot with force sensors at various points on its feet. The ZMP can be approximated by a weighted average of the force sensor locations, where the weights are the normal forces measured by each sensor.
+
+### Python Snippet: Simplified Single Foot ZMP Calculation
+
+Here's a basic Python snippet to illustrate this concept for a single foot, assuming an array of `force_sensors`, each providing `(x_pos, y_pos, normal_force)`:
+
+```python
+import numpy as np
+
+def calculate_zmp_simplified_single_foot(force_sensors):
+    """
+    Calculates a simplified Zero Moment Point (ZMP) for a single foot
+    based on force sensor readings.
+
+    Args:
+        force_sensors (list): A list of tuples, where each tuple represents
+                              a force sensor reading: (x_position, y_position, normal_force).
+                              x_position and y_position are relative to the foot's origin (e.g., center).
+
+    Returns:
+        tuple: (zmp_x, zmp_y) coordinates if total_force > 0, otherwise (0.0, 0.0).
+    """
+    total_force_x_moment = 0.0
+    total_force_y_moment = 0.0
+    total_normal_force = 0.0
+
+    for x_pos, y_pos, normal_force in force_sensors:
+        total_force_x_moment += x_pos * normal_force
+        total_force_y_moment += y_pos * normal_force
+        total_normal_force += normal_force
+
+    if total_normal_force > 0:
+        zmp_x = total_force_x_moment / total_normal_force
+        zmp_y = total_force_y_moment / total_normal_force
+        return zmp_x, zmp_y
+    else:
+        # If no force is detected (foot is in the air), ZMP is undefined.
+        # Returning (0.0, 0.0) is a common convention for such cases or when ZMP is outside the foot.
+        return 0.0, 0.0
+
+# Example Usage:
+# Assuming force sensors at corners of a rectangular foot, relative to the foot's center.
+# Sensor positions in meters: Front-left (-0.05, 0.08), Front-right (0.05, 0.08),
+# Rear-left (-0.05, -0.08), Rear-right (0.05, -0.08).
+
+# Scenario 1: Evenly distributed force, ZMP near center
+print("\n--- Scenario 1: Evenly Distributed Force ---")
+sensor_data_foot_1 = [
+    (-0.05, 0.08, 10.0),  # Front-left sensor: (x, y, force_z)
+    (0.05, 0.08, 12.0),   # Front-right sensor
+    (-0.05, -0.08, 15.0), # Rear-left sensor
+    (0.05, -0.08, 13.0)    # Rear-right sensor
+]
+zmp_x_foot1, zmp_y_foot1 = calculate_zmp_simplified_single_foot(sensor_data_foot_1)
+print(f"Simplified ZMP for foot 1: ({zmp_x_foot1:.4f}, {zmp_y_foot1:.4f}) meters")
+
+# Scenario 2: Force shifted towards the front, ZMP shifts forward
+print("\n--- Scenario 2: Force Shifted Forward ---")
+sensor_data_foot_2 = [
+    (-0.05, 0.08, 20.0),  # Higher force on front sensors
+    (0.05, 0.08, 22.0),
+    (-0.05, -0.08, 5.0),
+    (0.05, -0.08, 6.0)
+]
+zmp_x_foot2, zmp_y_foot2 = calculate_zmp_simplified_single_foot(sensor_data_foot_2)
+print(f"Simplified ZMP for foot 2: ({zmp_x_foot2:.4f}, {zmp_y_foot2:.4f}) meters")
+
+# Scenario 3: No force, foot in air
+print("\n--- Scenario 3: No Force (Foot in Air) ---")
+sensor_data_foot_3 = [
+    (-0.05, 0.08, 0.0),
+    (0.05, 0.08, 0.0),
+    (-0.05, -0.08, 0.0),
+    (0.05, -0.08, 0.0)
+]
+zmp_x_foot3, zmp_y_foot3 = calculate_zmp_simplified_single_foot(sensor_data_foot_3)
+print(f"Simplified ZMP for foot 3: ({zmp_x_foot3:.4f}, {zmp_y_foot3:.4f}) meters")
+
+# In a full bipedal system, you'd combine ZMP calculations from both feet
+# during double support, and monitor the ZMP within the active support foot
+# during single support. The overall ZMP for the robot would be a more complex
+# calculation involving the entire robot's dynamics and all ground contact forces.
+```
+
+### Extended Practice: Bipedal ZMP Integration
+
+**Goal:** Expand the simplified `calculate_zmp_simplified_single_foot` function to conceptually handle a bipedal robot with two feet during both single and double support phases. This will deepen your understanding of how ZMP is managed during a full gait cycle.
+
+1.  **Define Two Feet:** Assume you have `sensor_data_left_foot` and `sensor_data_right_foot`, similar in structure to the `sensor_data_foot_1` example.
+2.  **`calculate_bipedal_zmp` Function:** Create a new function, `calculate_bipedal_zmp(left_foot_sensors, right_foot_sensors)`. This function should:
+    *   First, calculate the ZMP for each individual foot using `calculate_zmp_simplified_single_foot`.
+    *   **Double Support Phase:** If both feet have `total_normal_force > 0`, calculate the overall robot ZMP as the weighted average of the two individual foot ZMPs. The weights could be the `total_normal_force` of each foot. This will place the overall ZMP somewhere between the two feet.
+    *   **Single Support Phase:** If only one foot has `total_normal_force > 0`, the robot's overall ZMP is simply the ZMP of the supporting foot.
+    *   **No Support:** If neither foot has `total_normal_force > 0`, return (0.0, 0.0) as the robot is falling.
+3.  **Test Scenarios:** Create test data for:
+    *   Both feet on the ground (double support, CoM centered).
+    *   Both feet on the ground, CoM shifted towards one foot.
+    *   Only left foot on the ground (single support).
+    *   Only right foot on the ground (single support).
+    *   Neither foot on the ground (mid-air or falling).
+4.  **Visualize (Conceptual):** Mentally (or with simple print statements) trace the ZMP's path through these scenarios, noting how it stays within the support polygon during stable phases.
+
+This exercise will help you grasp the dynamic nature of ZMP control and how it changes across different phases of bipedal locomotion, forming a crucial foundation for more advanced control algorithms.

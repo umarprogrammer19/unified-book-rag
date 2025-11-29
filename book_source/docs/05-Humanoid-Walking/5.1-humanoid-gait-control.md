@@ -1,0 +1,37 @@
+# Chapter 5: Humanoid Locomotion - Gait Control Phases
+
+Building upon the concepts of static and dynamic walking, this section delves into the alternating phases that characterize the walking gait of a bipedal robot: the Double Support Phase and the Single Support (Swing) Phase. Understanding these phases is crucial for designing and controlling stable and efficient humanoid locomotion.
+
+## 3. Gait Control: Double Support Phase vs. Single Support Phase
+
+The walking gait of a bipedal robot is a continuous cycle of shifting weight and moving limbs. This cycle can be broken down into distinct phases based on the number of feet in contact with the ground.
+
+### Double Support Phase
+
+*   **Definition:** This phase occurs when both feet are in contact with the ground. It's a brief but critical period where the robot transitions its weight from one foot to the other, preparing for the next step.
+*   **Characteristics:**
+    *   **Increased Stability:** During this phase, the robot has a larger support polygon, providing greater intrinsic stability compared to the single support phase.
+    *   **Weight Transfer:** The Center of Mass (CoM) actively transitions from being primarily above the trailing foot to being above the leading foot (or a point between them), generating initial momentum for the swing phase.
+    *   **Momentum Generation:** This phase is crucial for shifting weight, controlling the robot's momentum, and preparing the body for the subsequent swing of one leg.
+*   **Control Objectives:** Controllers in this phase focus on smoothly transferring weight, ensuring the ZMP remains within the double support polygon, and initiating the lift-off of the swing leg with minimal disturbance.
+*   **Practical Example:** When you walk, there's a brief moment where both your feet are on the ground before you push off with your back foot. This is your double support phase.
+
+### Single Support Phase (Swing Phase)
+
+*   **Definition:** In this phase, only one foot (the support leg) is in contact with the ground, while the other foot (the swing leg) moves forward to take the next step.
+*   **Characteristics:**
+    *   **Reduced Stability:** This is the most challenging phase for stability, as the support polygon is significantly reduced (only the area of the single support foot). The robot is inherently less stable and relies heavily on dynamic balance.
+    *   **Swing Leg Trajectory:** The swing leg follows a carefully planned trajectory to clear the ground and position itself for the next foot placement. This trajectory must be smooth and avoid collisions.
+    *   **Active Balance:** The robot relies heavily on its dynamic balance capabilities, actively adjusting joint angles and torques of the support leg and body to keep the ZMP within the single support foot's contact area or within a desired region (e.g., a capture region) to ensure stable "falling."
+*   **Control Objectives:** Controllers during single support are highly complex, focusing on:
+    *   Maintaining ZMP within the support foot.
+    *   Generating the necessary forces and torques to counteract gravity and inertia.
+    *   Precisely controlling the swing leg's trajectory.
+    *   Preparing for the next foot contact.
+*   **Practical Example:** The majority of a human's walking cycle is spent in single support, balancing on one leg while the other moves forward.
+
+### Coordination and Control Strategy
+
+The precise timing and coordination between these phases, along with the trajectory generation for the swing leg and the sophisticated control of the support leg, are at the heart of robust bipedal locomotion. A well-designed gait controller smoothly transitions between these phases, manages momentum, and continuously maintains stability, whether static or dynamic.
+
+**Control Challenge:** Design a state machine or control logic that governs the transitions between double support and single support phases for a simple bipedal robot. What are the key triggers for transitioning from double to single support, and from single to double support?
