@@ -6,7 +6,8 @@
       "Bash(git --version:*)",
       "Bash(git rev-parse:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\nfeat(book-writing): initial setup for Chapter 1\n\nThis commit sets up the initial environment for writing Chapter 1 of the book,\n\"The Physical AI Lab\", by adding the course syllabus reference file.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(gh pr create --title \"feat(book-writing): initial setup for Chapter 1\" --body \"$(cat <<''EOF''\n## Summary\n- This PR sets up the initial environment for writing Chapter 1 of the book, \"The Physical AI Lab.\"\n- It includes the `course-syllabus.md` as a reference for content generation.\n\n## Test plan\n- Verify that the `feat/book-writing-chapter-1` branch is created on the remote.\n- Confirm that `references/course-syllabus.md` is present in the new branch.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\nEOF\n)\")"
+      "Bash(gh pr create --title \"feat(book-writing): initial setup for Chapter 1\" --body \"$(cat <<''EOF''\n## Summary\n- This PR sets up the initial environment for writing Chapter 1 of the book, \"The Physical AI Lab.\"\n- It includes the `course-syllabus.md` as a reference for content generation.\n\n## Test plan\n- Verify that the `feat/book-writing-chapter-1` branch is created on the remote.\n- Confirm that `references/course-syllabus.md` is present in the new branch.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\nEOF\n)\")",
+      "WebFetch(domain:developer.nvidia.com)"
     ],
     "deny": [],
     "ask": []

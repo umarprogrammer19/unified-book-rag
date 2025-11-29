@@ -43,7 +43,7 @@ The "Voice-to-Action" project combines speech recognition with LLM-powered decis
 2.  **Intent Recognition and Action Planning with GPT-4o:**
     *   **Role:** The transcribed text command is sent to GPT-4o (via an API or local LLM if applicable).
     *   **Process:** GPT-4o interprets the human's intent from the text, extracts relevant entities (e.g., "blue block," "pick up"), and generates a high-level action plan or specific API calls for the robot.
-    *   **Example Prompt to GPT-4o:** "The user said: 'Robot, pick up the blue block.' Based on this, what is the most appropriate robot action and object? Respond in a JSON format: {'action': 'grasp', 'object': 'blue block'}."
+    *   **Example Prompt to GPT-4o:** "The user said: 'Robot, pick up the blue block.' Based on this, what is the most appropriate robot action and object? Respond in a JSON format: `{"action": "grasp", "object": "blue block"}`."
 
 3.  **Robot Control and Execution:**
     *   **Role:** A robot control system (e.g., using ROS 2 nodes) receives the structured action commands from GPT-4o.
