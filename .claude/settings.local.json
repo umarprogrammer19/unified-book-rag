@@ -11,7 +11,8 @@
       "WebFetch(domain:www.mathworks.com)",
       "Bash(mkdir:*)",
       "Bash(mv:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []
