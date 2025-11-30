@@ -1,6 +1,6 @@
 import os
 import re
-import hashlib
+import uuid
 from typing import List, Dict, Any
 from qdrant_client import QdrantClient, models
 from openai import AsyncOpenAI
@@ -125,10 +125,13 @@ async def upsert_chunks_to_qdrant(chunks: List[Dict[str, Any]]):
     points = []
     for chunk in chunks:
         embedding = await get_embedding_async(chunk["content"])
+
+        # Generate a unique chunk ID
+        chunk_id = str(uuid.uuid4())
+
         points.append(
             models.PointStruct(
-        chunk_id = hashlib.sha256((chunk["source_file"] + chunk["content"]).encode()).hexdigest()
-                id=chunk_id,
+                id=chunk_id,  # Use the hashed value as the ID
                 vector=embedding,
                 payload={
                     "content": chunk["content"],

@@ -24,7 +24,9 @@
       "Bash(claude mcp remove:*)",
       "Bash(claude mcp add:*)",
       "Bash(claude mcp:*)",
-      "WebFetch(domain:context7.com)"
+      "WebFetch(domain:context7.com)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
