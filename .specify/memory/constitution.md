@@ -1,14 +1,13 @@
 <!--
 Sync Impact Report:
-Version change: 1.0.1 -> 1.1.0
+Version change: 1.1.0 -> 1.2.0
 Modified principles:
-- 1. Architecture -> 1. Project Goal
-- 2. The Shared Database Rule (CRITICAL) -> 2. Content Standards
-- 3. Technology Stack (Backend/Auth) -> 3. Tech Stack (Frontend focus)
-- 4. Bonus Requirements (The 300 Points) -> Removed
-- 5. Git Workflow -> Removed
-Added sections: N/A
-Removed sections: "4. Bonus Requirements (The 300 Points)", "5. Git Workflow"
+- 1. Project Goal: Phase 1 Book Generation -> 1. Active Focus: Phase 2 Backend Development
+- 3. Tech Stack (Frontend focus) -> 3. Tech Stack (Full Stack)
+Added sections:
+- 4. Backend Standards
+- 5. RAG Requirements
+Removed sections: N/A
 Templates requiring updates:
 - .specify/templates/plan-template.md: ⚠ pending
 - .specify/templates/spec-template.md: ⚠ pending
@@ -22,12 +21,12 @@ Follow-up TODOs:
 -->
 # Project Constitution: Teaching Physical AI & Humanoid Robotics Course
 
-## 1. Project Goal: Phase 1 Book Generation
-*   Create a high-quality technical book: "Teaching Physical AI & Humanoid Robotics Course".
-*   Focus ONLY on Frontend (`/book_source`) development and content generation during Phase 1.
+## 1. Active Focus: Phase 2 Backend Development
+*   **Root Directory (`/`)**: Main Python Backend (FastAPI + uv).
+*   `/book_source` is now READ-ONLY source material for RAG.
 
 ## 2. Content Standards
-*   **Format**: All book content MUST be written in Markdown (`.md`) files located within `/book_source/docs/`.
+*   **Format**: All book content MUST be written in Markdown (`.md`) files located within `/book_source/docs/` (READ-ONLY).
 *   **Tone**: The content MUST maintain an Engineering-focused, Academic yet practical tone.
 *   **Research**: All content MUST be based on live documentation, fetched via Playwright, and NOT generated from generic AI text.
 *   **Structure**: Every chapter MUST adhere to the following structure:
@@ -35,12 +34,22 @@ Follow-up TODOs:
     *   "Simulation" (Practical guidance on running concepts in Isaac Sim/Mujoco)
     *   "Real World Application" (Examples and discussions related to Humanoid Robots).
 
-## 3. Tech Stack
+## 3. Tech Stack (Full Stack)
+*   **Backend**: FastAPI, SQLModel (Neon), OpenAI Agents SDK, Qdrant Client.
 *   **Frontend**: Docusaurus 3.x for the static site generation.
 *   **Styling**: TailwindCSS for all styling requirements.
+
+## 4. Backend Standards
+*   **Tech**: FastAPI, SQLModel (Neon), OpenAI Agents SDK, Qdrant Client.
+*   **Ingestion**: MUST have a script to parse `/book_source/docs/*.md` and upload to Qdrant collection `physical_ai_book`.
+*   **Auth**: MUST implement the "Sidecar" verification logic (reading cookies).
+
+## 5. RAG Requirements
+*   **Search**: Hybrid Search (Keyword + Vector) MUST be preferred.
+*   **Accuracy**: Answers MUST be strictly based on the book context.
 
 ## Governance
 <!-- Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 All development and architectural decisions must comply with this constitution. Amendments to this constitution require a documented proposal, approval from the architectural review board (ARB), and a clear migration plan for existing components. All pull requests and code reviews must verify compliance with these principles.
 
-**Version**: 1.1.0 | **Ratified**: 2025-11-28 | **Last Amended**: 2025-11-28
+**Version**: 1.2.0 | **Ratified**: 2025-11-28 | **Last Amended**: 2025-11-30
