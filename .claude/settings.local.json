@@ -12,7 +12,19 @@
       "Bash(mkdir:*)",
       "Bash(mv:*)",
       "Bash(rm:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(git fetch:*)",
+      "Bash(uv add:*)",
+      "Bash(.specify/scripts/bash/check-prerequisites.sh:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "WebFetch(domain:openai.github.io)",
+      "WebFetch(domain:platform.openai.com)",
+      "WebFetch(domain:qdrant.tech)",
+      "Bash(claude mcp remove:*)",
+      "Bash(claude mcp add:*)",
+      "Bash(claude mcp:*)",
+      "WebFetch(domain:context7.com)"
     ],
     "deny": [],
     "ask": []
