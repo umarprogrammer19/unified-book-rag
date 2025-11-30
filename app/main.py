@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List, Dict, Any, AsyncGenerator
+from starlette.responses import StreamingResponse
 import uvicorn
 import os
 import asyncio
+import json
 
 from app.agent import get_rag_agent_response
 from app.services.ingestion import ingest_book_content
@@ -43,31 +45,17 @@ async def startup_event():
 async def health_check():
     return {"status": "healthy"}
 
-@app.post("/api/chat", response_model=ChatResponse)
+@app.post("/api/chat")
 async def chat_endpoint(request: ChatRequest):
     user_message = request.messages[-1].content # Get the latest user message
 
-    # Invoke the RAG agent and get the response
-    agent_chatkit_response = await get_rag_agent_response(user_message)
+    async def generate_response_stream():
+        async for chunk in get_rag_agent_response(user_message):
+            # Each chunk is expected to be a dictionary, e.g., {"text": "..."}
+            # or {"sources": "..."}
+            yield json.dumps(chunk)
 
-    # The get_rag_agent_response is expected to return a dictionary like:
-    # {"text": "agent's answer", "sources": [...]} for ChatKit compatibility
-
-    # We need to transform this into a list of ChatMessage for ChatResponse
-    response_messages = []
-    if "text" in agent_chatkit_response and agent_chatkit_response["text"]:
-        response_messages.append(ChatMessage(role="assistant", content=agent_chatkit_response["text"]))
-
-    # If there are sources, you might want to include them in a specific ChatKit format.
-    # For now, we'll just append them as a separate assistant message if they exist.
-    if "sources" in agent_chatkit_response and agent_chatkit_response["sources"]:
-        source_content = "\n\nSources:\n" + "\n".join([
-            f"- {s.get('description', 'Unknown source')} (Tool: {s.get('name', 'Unknown')})"
-            for s in agent_chatkit_response["sources"]
-        ])
-        response_messages.append(ChatMessage(role="assistant", content=source_content))
-
-    return ChatResponse(messages=response_messages)
+    return StreamingResponse(generate_response_stream(), media_type="application/x-ndjson")
 
 if __name__ == "__main__":
     # For local development, you can run this file directly:

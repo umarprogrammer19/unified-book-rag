@@ -16,11 +16,14 @@ if not OPENAI_API_KEY:
     raise ValueError("OPENAI_API_KEY not found in environment variables.")
 if not QDRANT_URL:
     raise ValueError("QDRANT_URL not found in environment variables.")
+if not QDRANT_API_KEY:
+    raise ValueError("QDRANT_API_KEY not found in environment variables.")
 
 openai_client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 qdrant_client_instance = QdrantClient(
     url=QDRANT_URL,
-    api_key=QDRANT_API_KEY
+    api_key=QDRANT_API_KEY,
+    timeout=60 # Set timeout to 60 seconds
 )
 
 COLLECTION_NAME = "physical_ai_book"
@@ -55,45 +58,58 @@ def chunk_markdown_content(file_path: str) -> List[Dict[str, Any]]:
     chunks = []
     current_h1 = None
     current_h2 = None
+    current_chunk_content = []
+    current_headers_list = []
 
-    # Split content by H1 and H2 headers, including the headers in the split result
-    # Using re.split with capturing groups to keep the delimiters
-    segments = re.split(r'(?m)^(?:#\s.*|##\s.*)', content)
-    # Find all headers to associate them with their respective content segments
-    headers = re.findall(r'(?m)^(?:#\s.*|##\s.*)', content)
+    # Split content by H1 and H2 headers, keeping the headers themselves
+    # The regex ensures that the split point is right before a header
+    segments = re.split(r'^(#\s.*|##\s.*)', content, flags=re.MULTILINE)
 
-    # If there's content before the first header, handle it as a single chunk
-    if segments and segments[0].strip():
+    # The first segment might be content before any headers, or an empty string if content starts with a header
+    # We ignore the very first empty string if the content starts with a header
+    start_index = 0
+    if not segments[0].strip() and len(segments) > 1:
+        start_index = 1
+
+    for i in range(start_index, len(segments)):
+        segment = segments[i].strip()
+        if not segment:
+            continue
+
+        if segment.startswith("# ") or segment.startswith("## "):
+            # If we encounter a new header, and there's accumulated content, save the previous chunk
+            if current_chunk_content:
+                chunks.append({
+                    "content": "\n".join(current_chunk_content).strip(),
+                    "headers": list(current_headers_list),
+                    "source_file": os.path.basename(file_path)
+                })
+                current_chunk_content = []
+
+            # Update headers
+            if segment.startswith("# "):
+                current_h1 = segment.replace("# ", "", 1).strip()
+                current_h2 = None # Reset H2 when a new H1 is encountered
+                current_headers_list = [current_h1]
+            elif segment.startswith("## "):
+                current_h2 = segment.replace("## ", "", 1).strip()
+                if current_h1:
+                    current_headers_list = [current_h1, current_h2]
+                else:
+                    current_headers_list = [current_h2] # Should ideally always have an H1, but for robustness
+
+            current_chunk_content.append(segment) # Add the header itself to the chunk content
+        else:
+            # This is content belonging to the current header context
+            current_chunk_content.append(segment)
+
+    # Add the last accumulated chunk if any
+    if current_chunk_content:
         chunks.append({
-            "content": segments[0].strip(),
-            "headers": [], # No headers before the first one
+            "content": "\n".join(current_chunk_content).strip(),
+            "headers": list(current_headers_list),
             "source_file": os.path.basename(file_path)
         })
-
-    # Process each header and its corresponding segment
-    for i, header_text in enumerate(headers):
-        header_text = header_text.strip()
-        segment_content = segments[i+1].strip() if i+1 < len(segments) else ""
-
-        if header_text.startswith("# "):
-            current_h1 = header_text.replace("# ", "", 1).strip()
-            current_h2 = None # Reset H2 when a new H1 is encountered
-        elif header_text.startswith("## "):
-            current_h2 = header_text.replace("## ", "", 1).strip()
-
-        headers_list = []
-        if current_h1:
-            headers_list.append(current_h1)
-        if current_h2:
-            headers_list.append(current_h2)
-
-        full_chunk_content = f"{header_text}\n{segment_content}".strip()
-        if full_chunk_content:
-            chunks.append({
-                "content": full_chunk_content,
-                "headers": headers_list,
-                "source_file": os.path.basename(file_path)
-            })
     return chunks
 
 
@@ -153,7 +169,7 @@ async def ingest_book_content():
     """
     Main function to orchestrate finding, chunking, embedding, and upserting book content.
     """
-    docs_directory = "book_source/docs"
+    docs_directory = os.path.join(os.getcwd(), "book_source", "docs")
     print(f"Starting ingestion from {docs_directory}...")
 
     # Verify the docs_directory exists and list its contents
