@@ -11,3 +11,5 @@ Thumbs.db
 .vscode/
 .idea/
 .env*
+node_modules
+.docusaurus

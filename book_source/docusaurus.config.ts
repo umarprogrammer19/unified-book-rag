@@ -22,8 +22,8 @@ const config: Config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'facebook', // Usually your GitHub org/user name.
-  projectName: 'docusaurus', // Usually your repo name.
+  organizationName: 'umarprogrammer19', // Usually your GitHub org/user name.
+  projectName: 'unified-book-rag', // Usually your repo name.
 
   onBrokenLinks: 'throw',
 
@@ -103,7 +103,7 @@ const config: Config = {
           items: [
             {
               label: 'Tutorial',
-              to: '/docs/intro',
+              to: '/docs/Module 01 Hardware-Lab/1.1-physical-ai-foundations-basics',
             },
           ],
         },
