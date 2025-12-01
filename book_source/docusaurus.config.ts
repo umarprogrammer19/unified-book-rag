@@ -5,9 +5,9 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'Teaching Physical AI & Humanoid Robotics',
-  tagline: 'Dinosaurs are cool',
-  favicon: 'img/favicon.ico',
+  title: 'Physical AI Course',
+  tagline: 'Your Comprehensive Guide to Mastering Generative AI',
+  favicon: 'img/robotics_favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -70,14 +70,14 @@ const config: Config = {
 
   themeConfig: {
     // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
+    image: 'img/physical_ai_social_card.jpg',
     colorMode: {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'Teaching Physical AI & Humanoid Robotics',
+      title: 'Physical AI Course',
       logo: {
-        alt: 'My Site Logo',
+        alt: 'Physical AI Course Logo',
         src: 'img/logo.svg',
       },
       items: [
@@ -85,11 +85,11 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
-          label: 'Tutorial',
+          label: 'Course',
         },
-        {to: '/blog', label: 'Blog', position: 'left'},
+        {to: '/blog', label: 'Updates', position: 'left'},
         {
-          href: 'https://github.com/facebook/docusaurus',
+          href: 'https://github.com/umarprogrammer19/unified-book-rag',
           label: 'GitHub',
           position: 'right',
         },
@@ -98,15 +98,6 @@ const config: Config = {
     footer: {
       style: 'dark',
       links: [
-        {
-          title: 'Docs',
-          items: [
-            {
-              label: 'Tutorial',
-              to: '/docs/Module 01 Hardware-Lab/1.1-physical-ai-foundations-basics',
-            },
-          ],
-        },
         {
           title: 'Community',
           items: [
@@ -125,20 +116,24 @@ const config: Config = {
           ],
         },
         {
-          title: 'More',
+          title: 'Resources',
           items: [
+            {
+              label: 'Docs',
+              to: '/docs/Module 01 Hardware-Lab/1.1-physical-ai-foundations-basics',
+            },
             {
               label: 'Blog',
               to: '/blog',
             },
             {
               label: 'GitHub',
-              href: 'https://github.com/facebook/docusaurus',
+              href: 'https://github.com/umarprogrammer19/unified-book-rag',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} GenAI Robotics Lab.`,
     },
     prism: {
       theme: prismThemes.github,
