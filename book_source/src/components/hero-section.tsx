@@ -1,5 +1,6 @@
 import Link from "@docusaurus/Link"
 import styles from "./hero-section.module.css"
+import RoboImage from "./asset/robo.jpg";
 
 export function HeroSection() {
   return (
@@ -44,7 +45,7 @@ export function HeroSection() {
           <div className={styles.imageGlow} />
           <div className={styles.imageContainer}>
             <img
-              src="/futuristic-ai-robotics-neural-network-visualizatio.jpg"
+              src={RoboImage}
               alt="Physical AI Course Overview - Neural networks and robotics visualization"
             />
             <div className={styles.imageOverlay} />
