@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Any, AsyncGenerator
 from starlette.responses import StreamingResponse
@@ -12,6 +13,14 @@ from app.services.ingestion import ingest_book
 from app.agent import get_rag_agent_response
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Or ["*"] for development
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Pydantic models for ChatKit compatibility
 class ChatMessage(BaseModel):
