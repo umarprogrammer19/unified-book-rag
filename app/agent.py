@@ -140,11 +140,14 @@ async def get_rag_agent_response(user_message: str):
             if event.data.delta:
                 print(f"Yielding text_delta_event: {event.data.delta[:50]}...")
                 yield {"text": event.data.delta}
+        elif event.type == "raw_response_event":
+            if hasattr(event.data, 'text') and event.data.text:
+                print(f"Yielding raw_response_event text: {event.data.text[:50]}...")
+                yield {"text": event.data.text}
         elif event.type == "tool_output_event":
             tool_output_data = event.data.output
             if tool_output_data:
                 print(f"Tool output data: {tool_output_data}")
-                # If structured sources are available, yield them separately for ChatKit
                 if tool_output_data.get("sources"):
                     sources = []
                     for source in tool_output_data["sources"]:
@@ -154,13 +157,11 @@ async def get_rag_agent_response(user_message: str):
                             "description": f"Content from {source['source_file']}",
                             "content": source["content"],
                             "source_file": source["source_file"]
-                            # Headers are not available in the ingested payload.
                         })
                     print(f"Yielding sources: {len(sources)} sources.")
                     yield {"sources": sources}
-                # Yield the agent's response content from the tool output
                 if tool_output_data.get("agent_response_content"):
-                    print(f"Yielding agent_response_content: {tool_output_data["agent_response_content"][:50]}...")
+                    print(f"Yielding agent_response_content: {tool_output_data['agent_response_content'][:50]}...")
                     yield {"text": tool_output_data["agent_response_content"]}
         else:
             print(f"Unhandled event type: {event.type}")
