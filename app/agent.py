@@ -25,11 +25,12 @@ qdrant_client_instance = qdrant_client.AsyncQdrantClient(
 )
 
 COLLECTION_NAME = "physical_ai_book"
+EMBEDDING_MODEL = "text-embedding-3-small"
 
 async def get_embedding(text: str) -> List[float]:
     """Generates an embedding for the given text using OpenAI's embedding model."""
     response = await openai_client.embeddings.create(
-        input=text, model="text-embedding-ada-002"
+        input=text, model=EMBEDDING_MODEL
     )
     return response.data[0].embedding
 
@@ -40,15 +41,26 @@ async def search_book(query: str) -> Dict[str, Any]:
     Returns the retrieved content, including the source file and relevant headers,
     formatted for both the agent's consumption and client display.
     """
+    print(f"search_book called with query: {query}")
     query_embedding = await get_embedding(query)
-    search_result = await qdrant_client_instance.search(
-        collection_name=COLLECTION_NAME,
-        query_vector=query_embedding,
-        limit=3,  # Retrieve top 3 relevant chunks
-        append_payload=True,
-    )
+    try:
+        print(f"Attempting Qdrant query_points with collection: {COLLECTION_NAME}, query_vector length: {len(query_embedding)}")
+        # Corrected: Using query_points and removing append_payload
+        search_result = await qdrant_client_instance.query_points(
+            collection_name=COLLECTION_NAME,
+            query=query_embedding,
+            limit=3,  # Retrieve top 3 relevant chunks
+        )
+        print(f"Qdrant query_points (raw): {search_result}")
+    except Exception as e:
+        print(f"Error during Qdrant query_points search: {e}")
+        return {
+            "agent_response_content": f"An error occurred during book search: {e}",
+            "sources": []
+        }
 
     if not search_result:
+        print("No search results found in Qdrant after query_points.")
         # Return a structured dictionary even if no results are found
         return {
             "agent_response_content": "No relevant information found in the book to answer your query.",
@@ -58,10 +70,15 @@ async def search_book(query: str) -> Dict[str, Any]:
     sources = []
     context_contents = []
     for hit in search_result:
+        # Payloads are directly accessible from the hit object in query_points result
         payload = hit.payload
-        content = payload.get("content", "")
-        source_file = payload.get("source_file", "unknown")
-        headers = payload.get("headers", [])
+        content = payload.get("text", "")
+        source_file = payload.get("source", "unknown")
+        print(f"Processing hit: payload={payload}, content={content[:50]}..., source_file={source_file}")
+        # Headers are not currently stored in the payload during ingestion.
+        # If headers are needed, the ingestion process (app/services/ingestion.py)
+        # would need to be updated to extract and store them.
+        headers = [] # Empty list for now as headers are not ingested
 
         context_contents.append(content)
         sources.append({
@@ -70,6 +87,9 @@ async def search_book(query: str) -> Dict[str, Any]:
             "content": content
         })
 
+    print(f"Collected context_contents: {[c[:50] for c in context_contents]}")
+    print(f"Collected sources: {sources}")
+
     # Prepare content for the agent to easily consume
     # The agent will see this formatted string as the tool's output
     agent_response_content = "\n\n".join(context_contents)
@@ -77,11 +97,14 @@ async def search_book(query: str) -> Dict[str, Any]:
         # Append simplified source citations for the agent's reference
         agent_response_content += "\n\nSources:"
         for i, source in enumerate(sources):
-            agent_response_content += f"\n- {source['source_file']} (Headers: {' > '.join(source['headers'])})"
+            # Simplify source citation as headers are not ingested
+            agent_response_content += f"\n- Source: {source['source_file']}"
 
 
     # The tool returns a dictionary. The 'agent_response_content' is for the LLM to process
     # and 'sources' is for the ChatKit client to display structured information.
+    print(f"Agent response content: {agent_response_content[:200]}...")
+    print(f"Sources for ChatKit: {sources}")
     return {
         "agent_response_content": agent_response_content,
         "sources": sources
@@ -95,7 +118,7 @@ rag_agent = Agent(
         "You are an AI assistant specialized in answering questions about the 'The Physical AI Lab' book. "
         "Use the `search_book` tool to retrieve relevant information from the book content based on the user's query. "
         "The `search_book` tool will provide a detailed 'agent_response_content' which includes retrieved text and simplified source citations. "
-        "Formulate concise and accurate answers based *only* on this 'agent_response_content', ensuring you incorporate and re-state the provided source citations in your final answer. "
+        "Formulate concise and accurate answers based *only* on this 'agent_response_content', ensuring you incorporate and re-state the provided source citations (e.g., 'Source: filename.md') in your final answer. "
         "If the 'agent_response_content' indicates no relevant information, state that you don't have enough information from the book to answer."
     ),
     tools=[search_book],
@@ -107,6 +130,7 @@ async def get_rag_agent_response(user_message: str):
     Invokes the RAG agent with a user message and streams the response
     formatted for ChatKit compatibility.
     """
+    print(f"get_rag_agent_response called with user_message: {user_message}")
     response_stream = Runner.run_streamed(input=user_message, starting_agent=rag_agent)
 
     async for event in response_stream.stream_events():
@@ -123,9 +147,13 @@ async def get_rag_agent_response(user_message: str):
                         sources.append({
                             "type": "tool_code",
                             "name": "search_book",
-                            "description": f"Content from {source['source_file']} (Headers: {' > '.join(source['headers'])})",
+                            "description": f"Content from {source['source_file']}",
                             "content": source["content"],
-                            "source_file": source["source_file"],
-                            "headers": source["headers"]
+                            "source_file": source["source_file"]
+                            # Headers are not available in the ingested payload.
                         })
                     yield {"sources": sources}
+                # Yield the agent's response content from the tool output
+                if tool_output_data.get("agent_response_content"):
+                    yield {"text": tool_output_data["agent_response_content"]}
+
