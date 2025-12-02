@@ -133,13 +133,17 @@ async def get_rag_agent_response(user_message: str):
     print(f"get_rag_agent_response called with user_message: {user_message}")
     response_stream = Runner.run_streamed(input=user_message, starting_agent=rag_agent)
 
+    print("Starting to stream events from RAG agent.")
     async for event in response_stream.stream_events():
+        print(f"Event type: {event.type}")
         if event.type == "text_delta_event":
             if event.data.delta:
+                print(f"Yielding text_delta_event: {event.data.delta[:50]}...")
                 yield {"text": event.data.delta}
         elif event.type == "tool_output_event":
             tool_output_data = event.data.output
             if tool_output_data:
+                print(f"Tool output data: {tool_output_data}")
                 # If structured sources are available, yield them separately for ChatKit
                 if tool_output_data.get("sources"):
                     sources = []
@@ -152,8 +156,12 @@ async def get_rag_agent_response(user_message: str):
                             "source_file": source["source_file"]
                             # Headers are not available in the ingested payload.
                         })
+                    print(f"Yielding sources: {len(sources)} sources.")
                     yield {"sources": sources}
                 # Yield the agent's response content from the tool output
                 if tool_output_data.get("agent_response_content"):
+                    print(f"Yielding agent_response_content: {tool_output_data["agent_response_content"][:50]}...")
                     yield {"text": tool_output_data["agent_response_content"]}
+        else:
+            print(f"Unhandled event type: {event.type}")
 
