@@ -33,7 +33,7 @@ export function Footer() {
               <Link href="#modules" className={styles.link}>
                 Modules
               </Link>
-              <Link href="/docs/category/syllabus" className={styles.link}>
+              <Link href="#" className={styles.link}>
                 Syllabus
               </Link>
             </div>

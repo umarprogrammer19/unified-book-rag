@@ -27,9 +27,6 @@ export function Navbar() {
           <Link href="#modules" className={styles.navLink}>
             Modules
           </Link>
-          <Link href="/docs/category/syllabus" className={styles.navLink}>
-            Syllabus
-          </Link>
         </div>
 
         <div className={styles.navActions}>
