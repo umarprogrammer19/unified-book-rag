@@ -39,7 +39,11 @@
       "Bash(uv pip install:*)",
       "Bash(netstat:*)",
       "Bash(findstr:*)",
-      "Bash(cmd /c taskkill:*)"
+      "Bash(cmd /c taskkill:*)",
+      "Bash(npm start)",
+      "Bash(npm install:*)",
+      "Bash(npm run build)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,0 +1,19 @@
+{
+  "name": "unified_book_rag",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Umar Farooq",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "better-auth": "^1.4.4",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "pg": "^8.16.3"
+  }
+}
