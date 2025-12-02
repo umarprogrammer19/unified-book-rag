@@ -3,8 +3,6 @@ from pydantic import BaseModel
 from typing import List, Dict, Any, AsyncGenerator
 from starlette.responses import StreamingResponse
 import uvicorn
-import os
-import asyncio
 import json
 from dotenv import load_dotenv
 
