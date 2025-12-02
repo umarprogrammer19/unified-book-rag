@@ -5,6 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
+  clientModules: [require.resolve('./src/theme/Root.js')],
   title: 'Physical AI Course',
   tagline: 'Your Comprehensive Guide to Mastering Generative AI',
   favicon: 'img/robotics_favicon.ico',
@@ -71,6 +72,9 @@ const config: Config = {
   ],
 
   themeConfig: {
+    customFields: {
+      swizzleActive: true,
+    },
     // Replace with your project's social card
     image: 'img/physical_ai_social_card.jpg',
     colorMode: {

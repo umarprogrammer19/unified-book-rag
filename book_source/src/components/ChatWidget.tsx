@@ -43,7 +43,7 @@ const ChatWidget: React.FC = () => {
       const data = await response.json();
       setMessages((prevMessages) => [
         ...prevMessages,
-        { role: 'assistant', content: data.response },
+        { role: 'assistant', content: data.text },
       ]);
     } catch (error) {
       console.error('Error sending message:', error);
@@ -62,9 +62,6 @@ const ChatWidget: React.FC = () => {
     }
   };
 
-  if (!location.pathname.startsWith('/docs')) {
-    return null; // Only show on /docs route
-  }
 
   return (
     <>
