@@ -1,199 +1,95 @@
+import asyncio
 import os
-import re
-import uuid
-from typing import List, Dict, Any
-from qdrant_client import QdrantClient, models
+from qdrant_client import AsyncQdrantClient
+from qdrant_client.http.models import PointStruct, VectorParams, Distance
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
+import hashlib
+import uuid
+from typing import List
 
 load_dotenv()
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-QDRANT_URL = os.getenv("QDRANT_URL")
-QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-
-if not OPENAI_API_KEY:
-    raise ValueError("OPENAI_API_KEY not found in environment variables.")
-if not QDRANT_URL:
-    raise ValueError("QDRANT_URL not found in environment variables.")
-if not QDRANT_API_KEY:
-    raise ValueError("QDRANT_API_KEY not found in environment variables.")
-
-openai_client = AsyncOpenAI(api_key=OPENAI_API_KEY)
-qdrant_client_instance = QdrantClient(
-    url=QDRANT_URL,
-    api_key=QDRANT_API_KEY,
-    timeout=60 # Set timeout to 60 seconds
-)
-
-COLLECTION_NAME = "physical_ai_book"
-VECTOR_SIZE = 1536 # Size for text-embedding-ada-002
+# Connect
+qdrant = AsyncQdrantClient(url=os.getenv("QDRANT_URL"), api_key=os.getenv("QDRANT_API_KEY"), timeout=300)
+openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"), timeout=300)
 
 def find_markdown_files(directory: str) -> List[str]:
-    """
-    Recursively finds all .md files in the given directory, excluding specific chapter files.
-    """
     markdown_files = []
-    # Use os.path.normpath for consistent path comparisons
-    excluded_files = [
-        os.path.normpath(os.path.join(directory, 'chapter1.md')),
-        os.path.normpath(os.path.join(directory, 'chapter2.md')),
-    ]
     for root, _, files in os.walk(directory):
         for file in files:
             if file.endswith(".md"):
-                full_path = os.path.normpath(os.path.join(root, file))
-                if full_path not in excluded_files:
-                    markdown_files.append(full_path)
+                markdown_files.append(os.path.join(root, file))
     return markdown_files
 
-def chunk_markdown_content(file_path: str) -> List[Dict[str, Any]]:
-    """
-    Chunks markdown content based on H1 and H2 headers, preserving context.
-    Returns a list of dictionaries, each containing 'content', 'headers', and 'source_file'.
-    """
-    with open(file_path, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    chunks = []
-    current_h1 = None
-    current_h2 = None
-    current_chunk_content = []
-    current_headers_list = []
-
-    # Split content by H1 and H2 headers, keeping the headers themselves
-    # The regex ensures that the split point is right before a header
-    segments = re.split(r'^(#\s.*|##\s.*)', content, flags=re.MULTILINE)
-
-    # The first segment might be content before any headers, or an empty string if content starts with a header
-    # We ignore the very first empty string if the content starts with a header
-    start_index = 0
-    if not segments[0].strip() and len(segments) > 1:
-        start_index = 1
-
-    for i in range(start_index, len(segments)):
-        segment = segments[i].strip()
-        if not segment:
-            continue
-
-        if segment.startswith("# ") or segment.startswith("## "):
-            # If we encounter a new header, and there's accumulated content, save the previous chunk
-            if current_chunk_content:
-                chunks.append({
-                    "content": "\n".join(current_chunk_content).strip(),
-                    "headers": list(current_headers_list),
-                    "source_file": os.path.basename(file_path)
-                })
-                current_chunk_content = []
-
-            # Update headers
-            if segment.startswith("# "):
-                current_h1 = segment.replace("# ", "", 1).strip()
-                current_h2 = None # Reset H2 when a new H1 is encountered
-                current_headers_list = [current_h1]
-            elif segment.startswith("## "):
-                current_h2 = segment.replace("## ", "", 1).strip()
-                if current_h1:
-                    current_headers_list = [current_h1, current_h2]
-                else:
-                    current_headers_list = [current_h2] # Should ideally always have an H1, but for robustness
-
-            current_chunk_content.append(segment) # Add the header itself to the chunk content
-        else:
-            # This is content belonging to the current header context
-            current_chunk_content.append(segment)
-
-    # Add the last accumulated chunk if any
-    if current_chunk_content:
-        chunks.append({
-            "content": "\n".join(current_chunk_content).strip(),
-            "headers": list(current_headers_list),
-            "source_file": os.path.basename(file_path)
-        })
-    return chunks
-
-
-async def get_embedding_async(text: str) -> List[float]:
-    """
-    Generates an embedding for the given text using OpenAI's embedding model asynchronously.
-    """
-    response = await openai_client.embeddings.create(
-        input=text,
-        model="text-embedding-ada-002"
+async def ingest_book():
+    print("Ingestion: Step 1 - Creating/recreating Qdrant collection...")
+    # 1. Create Collection
+    await qdrant.recreate_collection(
+        collection_name="physical_ai_book",
+        vectors_config=VectorParams(size=1536, distance=Distance.COSINE)
     )
-    return response.data[0].embedding
+    print("Ingestion: Step 1 - Collection created/recreated.")
 
-async def upsert_chunks_to_qdrant(chunks: List[Dict[str, Any]]):
-    """
-    Generates embeddings for chunks and upserts them to Qdrant.
-    """
-    # Ensure the collection exists or create it
+    # 2. Read Files
+    all_chunks = []
+    docs_path = r"C:\Users\Umar Farooq\Desktop\unified-book-rag\book_source\docs"
+
+    markdown_files_found = find_markdown_files(docs_path)
+    print(f"Ingestion: Step 2 - Found {len(markdown_files_found)} markdown files. Starting chunk processing...")
+
+    if not markdown_files_found:
+        print(f"No markdown files found in {docs_path}. Skipping ingestion.")
+        return
+
+    for filepath in markdown_files_found:
+        print(f"Ingestion: Processing file: {filepath}")
+        with open(filepath, "r", encoding="utf-8") as f:
+            text = f.read()
+            chunks_from_file = text.split("\n## ")
+            print(f"Ingestion: File {os.path.basename(filepath)} split into {len(chunks_from_file)} potential chunks.")
+
+            for chunk_index, chunk_content in enumerate(chunks_from_file):
+                if len(chunk_content.strip()) < 50:
+                    continue
+                all_chunks.append({"content": chunk_content, "filepath": filepath, "index": chunk_index})
+
+    print(f"Ingestion: Collected {len(all_chunks)} valid chunks. Generating embeddings concurrently...")
+
+    embedding_tasks = []
+    for chunk_data in all_chunks:
+        embedding_tasks.append(openai_client.embeddings.create(input=chunk_data["content"], model="text-embedding-3-small"))
+
     try:
-        qdrant_client_instance.get_collection(collection_name=COLLECTION_NAME)
-        print(f"Collection '{COLLECTION_NAME}' already exists.")
-    except Exception:
-        print(f"Collection '{COLLECTION_NAME}' not found. Creating it.")
-        qdrant_client_instance.recreate_collection(
-            collection_name=COLLECTION_NAME,
-            vectors_config=models.VectorParams(size=VECTOR_SIZE, distance=models.Distance.COSINE),
-        )
+        embeddings_responses = await asyncio.gather(*embedding_tasks)
+        print(f"Ingestion: Successfully generated {len(embeddings_responses)} embeddings concurrently.")
+    except Exception as e:
+        print(f"Ingestion Error: Failed to generate embeddings concurrently: {e}")
+        return # Exit if embedding generation fails
 
     points = []
-    for chunk in chunks:
-        embedding = await get_embedding_async(chunk["content"])
+    for i, embedding_response in enumerate(embeddings_responses):
+        chunk_data = all_chunks[i]
+        emb = embedding_response.data[0].embedding
 
-        # Generate a unique chunk ID
-        chunk_id = str(uuid.uuid4())
+        # Generate a unique ID using SHA256 hash of the content for idempotency
+        # Generate a unique ID using UUID4 for Qdrant point IDs
+        unique_content_id = str(uuid.uuid4())
 
-        points.append(
-            models.PointStruct(
-                id=chunk_id,  # Use the hashed value as the ID
-                vector=embedding,
-                payload={
-                    "content": chunk["content"],
-                    "source_file": chunk["source_file"],
-                    "headers": chunk["headers"],
-                },
-            )
-        )
+        points.append(PointStruct(
+            id=unique_content_id,
+            vector=emb,
+            payload={"source": os.path.basename(chunk_data["filepath"]), "text": chunk_data["content"]}
+        ))
 
-    if points:
-        qdrant_client_instance.upsert(
-            collection_name=COLLECTION_NAME,
-            wait=True,
-            points=points,
-        )
-    print(f"Upserted {len(points)} points to Qdrant collection '{COLLECTION_NAME}'.")
-
-async def ingest_book_content():
-    """
-    Main function to orchestrate finding, chunking, embedding, and upserting book content.
-    """
-    docs_directory = os.path.join(os.getcwd(), "book_source", "docs")
-    print(f"Starting ingestion from {docs_directory}...")
-
-    # Verify the docs_directory exists and list its contents
-    if not os.path.isdir(docs_directory):
-        raise FileNotFoundError(f"The directory {docs_directory} does not exist.")
-
-    print("Contents of book_source/docs before ingestion:")
-    for item in os.listdir(docs_directory):
-        print(f"- {item}")
-
-    markdown_files = find_markdown_files(docs_directory)
-    all_chunks = []
-
-    for md_file in markdown_files:
-        print(f"Processing file: {md_file}")
-        chunks = chunk_markdown_content(md_file)
-        all_chunks.extend(chunks)
-
-    if all_chunks:
-        await upsert_chunks_to_qdrant(all_chunks)
-    else:
-        print("No markdown content found to ingest.")
-    print("Ingestion process completed.")
+    print(f"Ingestion: Step 3 - Upserting {len(points)} points to Qdrant...")
+    await qdrant.upsert(
+        collection_name="physical_ai_book",
+        wait=True,
+        points=points
+    )
+    print("Ingestion: Step 3 - Upsert complete.")
 
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(ingest_book_content())
+    asyncio.run(ingest_book())

@@ -27,88 +27,74 @@ qdrant_client_instance = qdrant_client.AsyncQdrantClient(
 COLLECTION_NAME = "physical_ai_book"
 EMBEDDING_MODEL = "text-embedding-3-small"
 
+
 async def get_embedding(text: str) -> List[float]:
     """Generates an embedding for the given text using OpenAI's embedding model."""
-    response = await openai_client.embeddings.create(
-        input=text, model=EMBEDDING_MODEL
-    )
+    response = await openai_client.embeddings.create(input=text, model=EMBEDDING_MODEL)
     return response.data[0].embedding
+
 
 @function_tool
 async def search_book(query: str) -> Dict[str, Any]:
     """
-    Searches the 'physical_ai_book' Qdrant collection for information relevant to the query.
-    Returns the retrieved content, including the source file and relevant headers,
-    formatted for both the agent's consumption and client display.
+    Searches the 'physical_ai_book' Qdrant collection.
+    Returns a dictionary containing the agent response content and a list of sources.
     """
     print(f"search_book called with query: {query}")
     query_embedding = await get_embedding(query)
+
     try:
-        print(f"Attempting Qdrant query_points with collection: {COLLECTION_NAME}, query_vector length: {len(query_embedding)}")
-        # Corrected: Using query_points and removing append_payload
+        # Query Qdrant
         search_result = await qdrant_client_instance.query_points(
             collection_name=COLLECTION_NAME,
             query=query_embedding,
-            limit=3,  # Retrieve top 3 relevant chunks
+            limit=3,
         )
-        print(f"Qdrant query_points (raw): {search_result}")
-    except Exception as e:
-        print(f"Error during Qdrant query_points search: {e}")
-        return {
-            "agent_response_content": f"An error occurred during book search: {e}",
-            "sources": []
-        }
 
-    if not search_result:
-        print("No search results found in Qdrant after query_points.")
-        # Return a structured dictionary even if no results are found
+        # --- CRITICAL FIX KEPT HERE ---
+        # Ensure we access .points safely
+        if not hasattr(search_result, "points") or not search_result.points:
+            return {
+                "agent_response_content": "No relevant information found in the book.",
+                "sources": [],
+            }
+
+        points = search_result.points
+
+    except Exception as e:
         return {
-            "agent_response_content": "No relevant information found in the book to answer your query.",
-            "sources": []
+            "agent_response_content": f"An error occurred during Qdrant search: {e}",
+            "sources": [],
         }
 
     sources = []
     context_contents = []
-    for hit in search_result:
-        # Payloads are directly accessible from the hit object in query_points result
-        payload = hit.payload
-        content = payload.get("text", "")
-        source_file = payload.get("source", "unknown")
-        print(f"Processing hit: payload={payload}, content={content[:50]}..., source_file={source_file}")
-        # Headers are not currently stored in the payload during ingestion.
-        # If headers are needed, the ingestion process (app/services/ingestion.py)
-        # would need to be updated to extract and store them.
-        headers = [] # Empty list for now as headers are not ingested
+
+    for hit in points:
+        payload = hit.payload if hit.payload else {}
+        content = payload.get("text", "No content available")
+        source_file = payload.get("source", "Unknown source")
+
+        if content == "No content available":
+            continue
 
         context_contents.append(content)
-        sources.append({
-            "source_file": source_file,
-            "headers": headers,
-            "content": content
-        })
+        # Store source info as a dict or string, per your preference
+        sources.append({"source_file": source_file, "content_snippet": content[:50]})
 
-    print(f"Collected context_contents: {[c[:50] for c in context_contents]}")
-    print(f"Collected sources: {sources}")
+    if context_contents:
+        agent_response_content = "\n\n".join(context_contents)
+        # We append sources to the text so the Agent can read them easily
+        # AND we return them in the dictionary structure for your UI/Client
+        if sources:
+            agent_response_content += "\n\nSources:"
+            for source in sources:
+                agent_response_content += f"\n- {source['source_file']}"
+    else:
+        agent_response_content = "Sorry, I couldn't find any relevant content."
 
-    # Prepare content for the agent to easily consume
-    # The agent will see this formatted string as the tool's output
-    agent_response_content = "\n\n".join(context_contents)
-    if sources:
-        # Append simplified source citations for the agent's reference
-        agent_response_content += "\n\nSources:"
-        for i, source in enumerate(sources):
-            # Simplify source citation as headers are not ingested
-            agent_response_content += f"\n- Source: {source['source_file']}"
-
-
-    # The tool returns a dictionary. The 'agent_response_content' is for the LLM to process
-    # and 'sources' is for the ChatKit client to display structured information.
-    print(f"Agent response content: {agent_response_content[:200]}...")
-    print(f"Sources for ChatKit: {sources}")
-    return {
-        "agent_response_content": agent_response_content,
-        "sources": sources
-    }
+    # --- RETURNING THE DICTIONARY ---
+    return {"agent_response_content": agent_response_content, "sources": sources}
 
 
 # Define the RAG Agent
@@ -141,7 +127,7 @@ async def get_rag_agent_response(user_message: str):
                 print(f"Yielding text_delta_event: {event.data.delta[:50]}...")
                 yield {"text": event.data.delta}
         elif event.type == "raw_response_event":
-            if hasattr(event.data, 'text') and event.data.text:
+            if hasattr(event.data, "text") and event.data.text:
                 print(f"Yielding raw_response_event text: {event.data.text[:50]}...")
                 yield {"text": event.data.text}
         elif event.type == "tool_output_event":
@@ -151,18 +137,21 @@ async def get_rag_agent_response(user_message: str):
                 if tool_output_data.get("sources"):
                     sources = []
                     for source in tool_output_data["sources"]:
-                        sources.append({
-                            "type": "tool_code",
-                            "name": "search_book",
-                            "description": f"Content from {source['source_file']}",
-                            "content": source["content"],
-                            "source_file": source["source_file"]
-                        })
+                        sources.append(
+                            {
+                                "type": "tool_code",
+                                "name": "search_book",
+                                "description": f"Content from {source['source_file']}",
+                                "content": source["content"],
+                                "source_file": source["source_file"],
+                            }
+                        )
                     print(f"Yielding sources: {len(sources)} sources.")
                     yield {"sources": sources}
                 if tool_output_data.get("agent_response_content"):
-                    print(f"Yielding agent_response_content: {tool_output_data['agent_response_content'][:50]}...")
+                    print(
+                        f"Yielding agent_response_content: {tool_output_data['agent_response_content'][:50]}..."
+                    )
                     yield {"text": tool_output_data["agent_response_content"]}
         else:
             print(f"Unhandled event type: {event.type}")
-

@@ -32,7 +32,14 @@
       "Bash(npm run swizzle:*)",
       "Bash(cd:*)",
       "WebFetch(domain:www.docusaurus.io)",
-      "WebFetch(domain:docusaurus.io)"
+      "WebFetch(domain:docusaurus.io)",
+      "Bash(uv run:*)",
+      "Bash(uvicorn:*)",
+      "Bash(curl:*)",
+      "Bash(uv pip install:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(cmd /c taskkill:*)"
     ],
     "deny": [],
     "ask": []
