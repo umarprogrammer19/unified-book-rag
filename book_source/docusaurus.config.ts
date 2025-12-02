@@ -45,6 +45,8 @@ const config: Config = {
           // Remove this to remove the "edit this page" links.
           editUrl:
             'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+          showLastUpdateTime: true,
+          showLastUpdateAuthor: true,
         },
         blog: {
           showReadingTime: true,
@@ -73,27 +75,6 @@ const config: Config = {
     image: 'img/physical_ai_social_card.jpg',
     colorMode: {
       respectPrefersColorScheme: true,
-    },
-    navbar: {
-      title: 'Physical AI Course',
-      logo: {
-        alt: 'Physical AI Course Logo',
-        src: 'img/logo.svg',
-      },
-      items: [
-        {
-          type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
-          position: 'left',
-          label: 'Course',
-        },
-        {to: '/blog', label: 'Updates', position: 'left'},
-        {
-          href: 'https://github.com/umarprogrammer19/unified-book-rag',
-          label: 'GitHub',
-          position: 'right',
-        },
-      ],
     },
     footer: {
       style: 'dark',

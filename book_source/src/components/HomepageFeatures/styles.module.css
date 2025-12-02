@@ -1,3 +1,7 @@
+*{
+  background-color: black;
+}
+
 .features {
   display: flex;
   align-items: center;

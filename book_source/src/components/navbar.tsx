@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import Link from "@docusaurus/Link"
 import styles from "./navbar.module.css"
@@ -35,7 +33,7 @@ export function Navbar() {
         </div>
 
         <div className={styles.navActions}>
-          <Link href="/docs" className={styles.docLink}>
+          <Link href="/docs/Module 01 Hardware-Lab/1.1-physical-ai-foundations-basics" className={styles.docLink}>
             Documentation
           </Link>
           <Link href="/docs/Module 01 Hardware-Lab/1.1-physical-ai-foundations-basics" className={styles.ctaButton}>
@@ -68,9 +66,6 @@ export function Navbar() {
           </Link>
           <Link href="#modules" className={styles.mobileLink} onClick={() => setIsOpen(false)}>
             Modules
-          </Link>
-          <Link href="/docs/category/syllabus" className={styles.mobileLink} onClick={() => setIsOpen(false)}>
-            Syllabus
           </Link>
           <Link
             href="/docs/Module 01 Hardware-Lab/1.1-physical-ai-foundations-basics"

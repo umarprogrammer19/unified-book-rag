@@ -28,7 +28,11 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(gh pr create --title \"feat(rag-backend-api): initial implementation of RAG backend with ingestion fixes\" --body \"$(cat <<''EOF''\n## Summary\n- This PR includes the initial implementation of the RAG backend system, encompassing the FastAPI application, the OpenAI Agents SDK-based RAG agent, and the markdown ingestion service.\n- It also integrates critical fixes for the ingestion pipeline:\n  - Updated `app/services/ingestion.py` to use `AsyncOpenAI` for asynchronous embedding generation.\n  - Modified `app/services/ingestion.py` to generate unique IDs for Qdrant `PointStruct`s using SHA256 hashes.\n- Dependencies in `pyproject.toml` and `uv.lock` have been updated.\n\n## Test plan\n- Ensure Qdrant is running and environment variables (OPENAI_API_KEY, QDRANT_URL, QDRANT_API_KEY) are set.\n- Run the FastAPI application (`uvicorn app.main:app --host 0.0.0.0 --port 8000`) and verify successful ingestion of book content without errors.\n- Use `check_qdrant.py` (a separate script, as provided previously) to confirm the `physical_ai_book` collection exists and contains vectors.\n- Test the `/api/chat` endpoint with relevant queries to ensure the RAG agent retrieves and responds correctly based on the ingested content.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\nEOF\n)\")",
-      "Bash(gh pr create:*)"
+      "Bash(gh pr create:*)",
+      "Bash(npm run swizzle:*)",
+      "Bash(cd:*)",
+      "WebFetch(domain:www.docusaurus.io)",
+      "WebFetch(domain:docusaurus.io)"
     ],
     "deny": [],
     "ask": []
