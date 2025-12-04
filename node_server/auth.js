@@ -1,5 +1,6 @@
-import { betterAuth as configureBetterAuth } from "better-auth";
+import { betterAuth as configureBetterAuth } from 'better-auth';
 
+// Configure Better Auth with environment variables
 export const betterAuth = configureBetterAuth({
   databaseUrl: process.env.DATABASE_URL,
   jwtSecret: process.env.JWT_SECRET,
