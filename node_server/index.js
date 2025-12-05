@@ -1,17 +1,15 @@
-import express from 'express';
-import 'dotenv/config';  
-import { betterAuth } from './auth.js';  
-import { signUpEmail, signInEmail } from 'better-auth/api'; 
-import { toNodeHandler } from 'better-auth/node'; 
+import express from "express";
+import "dotenv/config";
+import authRoutes from "./routes/auth.js";
 
 const app = express();
-app.use(express.json());
+const port = process.env.PORT || 5000;
 
-// Define API routes using Better Auth handlers
-app.post('/auth/register', toNodeHandler(signUpEmail)); 
-app.post('/auth/login', toNodeHandler(signInEmail));  
-app.all('/api/auth/*splat', toNodeHandler(betterAuth.handler));
+app.use(express.json()); 
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server running on port ${process.env.PORT}`);
+// Routes
+app.use('/api/auth', authRoutes);
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
