@@ -72,7 +72,6 @@ async def ingest_book():
         chunk_data = all_chunks[i]
         emb = embedding_response.data[0].embedding
 
-        # Generate a unique ID using SHA256 hash of the content for idempotency
         # Generate a unique ID using UUID4 for Qdrant point IDs
         unique_content_id = str(uuid.uuid4())
 

@@ -18,7 +18,6 @@ const Register = () => {
     setError(null);
     try {
       await signup(email, password, softwareBackground, hardwareBackground);
-      alert('Registration successful!');
       history.push('/login'); // Redirect to login page or home
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred.');
@@ -35,7 +34,8 @@ const Register = () => {
           justifyContent: 'center',
           alignItems: 'center',
           padding: '2rem 0',
-          minHeight: 'calc(100vh - var(--ifm-navbar-height) - var(--ifm-footer-height))',
+          minHeight: '90vh',
+          margin: "50px 0 0 0"
         }}
       >
         <div
@@ -46,10 +46,12 @@ const Register = () => {
             borderRadius: '8px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             backgroundColor: 'var(--ifm-background-color)',
+            fontFamily:
+              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
           }}
         >
           <h1 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Register</h1>
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', }}>
             <input
               type="email"
               placeholder="Email"
@@ -74,28 +76,73 @@ const Register = () => {
                 borderRadius: '4px',
               }}
             />
-            <input
-              type="text"
-              placeholder="Software Background"
-              value={softwareBackground}
-              onChange={(e) => setSoftwareBackground(e.target.value)}
-              style={{
-                padding: '0.8rem',
-                border: '1px solid var(--ifm-color-emphasis-300)',
-                borderRadius: '4px',
-              }}
-            />
-            <input
-              type="text"
-              placeholder="Hardware Background"
-              value={hardwareBackground}
-              onChange={(e) => setHardwareBackground(e.target.value)}
-              style={{
-                padding: '0.8rem',
-                border: '1px solid var(--ifm-color-emphasis-300)',
-                borderRadius: '4px',
-              }}
-            />
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ marginBottom: '0.5rem', display: 'block' }}>Software Background:</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {['Python', 'C++', 'ROS/ROS2', 'JavaScript/Web', 'Beginner'].map((option) => (
+                  <button
+                    type="button"
+                    key={option}
+                    onClick={() => setSoftwareBackground(option)}
+                    style={{
+                      padding: '0.6rem 1rem',
+                      borderRadius: '20px',
+                      border:
+                        softwareBackground === option
+                          ? '1px solid var(--ifm-color-primary)'
+                          : '1px solid var(--ifm-color-emphasis-400)',
+                      backgroundColor:
+                        softwareBackground === option
+                          ? 'var(--ifm-color-primary)'
+                          : 'transparent',
+                      color:
+                        softwareBackground === option
+                          ? 'white'
+                          : 'var(--ifm-font-color-base)',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem',
+                      transition: 'all 0.2s ease-in-out',
+                    }}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ marginBottom: '0.5rem', display: 'block' }}>Hardware Background:</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {['Arduino/ESP', 'Raspberry Pi', 'NVIDIA Jetson', 'Desktop GPU', 'None'].map((option) => (
+                  <button
+                    type="button"
+                    key={option}
+                    onClick={() => setHardwareBackground(option)}
+                    style={{
+                      padding: '0.6rem 1rem',
+                      borderRadius: '20px',
+                      border:
+                        hardwareBackground === option
+                          ? '1px solid var(--ifm-color-primary)'
+                          : '1px solid var(--ifm-color-emphasis-400)',
+                      backgroundColor:
+                        hardwareBackground === option
+                          ? 'var(--ifm-color-primary)'
+                          : 'transparent',
+                      color:
+                        hardwareBackground === option
+                          ? 'white'
+                          : 'var(--ifm-font-color-base)',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem',
+                      transition: 'all 0.2s ease-in-out',
+                    }}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
             <button
               type="submit"
               disabled={loading}

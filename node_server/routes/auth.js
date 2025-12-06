@@ -11,7 +11,7 @@ const router = express.Router();
 router.post('/signup', async (req, res) => {
   const { email, password, softwareBackground, hardwareBackground } = req.body;
 
-  if (!email || !password || !softwareBackground || !hardwareBackground) {
+  if (!email || !password) {
     return res.status(400).json({ message: 'Please fill in all fields' });
   }
 

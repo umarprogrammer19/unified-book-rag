@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import Layout from '@theme/Layout';
 import { signin } from '../services/authService';
-import { useHistory, Link } from '@docusaurus/router';
+import Link from '@docusaurus/Link';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const history = useHistory();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,9 +15,7 @@ const Login = () => {
     setError(null);
     try {
       await signin(email, password);
-      alert('Login successful!');
-      window.location.reload(); // Force reload to update navbar or other components
-      history.push('/'); // Redirect to home page
+      window.location.href = '/'; // Redirect to home page with hard refresh
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred.');
     } finally {
@@ -34,7 +31,8 @@ const Login = () => {
           justifyContent: 'center',
           alignItems: 'center',
           padding: '2rem 0',
-          minHeight: 'calc(100vh - var(--ifm-navbar-height) - var(--ifm-footer-height))',
+          minHeight: '90vh',
+          margin: "50px 0 0 0"
         }}
       >
         <div
@@ -45,6 +43,8 @@ const Login = () => {
             borderRadius: '8px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             backgroundColor: 'var(--ifm-background-color)',
+            fontFamily:
+              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
           }}
         >
           <h1 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Login</h1>
@@ -92,7 +92,7 @@ const Login = () => {
             {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
           </form>
           <p style={{ textAlign: 'center', marginTop: '1rem' }}>
-            Don't have an account? <Link to="/register">Register here</Link>
+            Need an account? <Link to="/register">Register</Link>
           </p>
         </div>
       </div>
