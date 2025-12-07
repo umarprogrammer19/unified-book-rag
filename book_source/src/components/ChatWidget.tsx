@@ -1,199 +1,281 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+"use client"
+
+import type React from "react"
+import { useState, useEffect, useRef } from "react"
+import styles from "./chat-widget.module.css"
+
+interface Message {
+  role: "user" | "assistant"
+  content: string
+}
 
 const ChatWidget: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [input, setInput] = useState('');
+  const [isOpen, setIsOpen] = useState(false)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [input, setInput] = useState("")
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const location = useLocation();
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    scrollToBottom()
+  }, [messages])
 
   const sendMessage = async () => {
-    if (input.trim() === '') return;
+    if (input.trim() === "") return
 
-    const userMessage = { role: 'user', content: input };
-    const allMessages = [...messages, userMessage];
-    setMessages(allMessages);
-    setInput('');
-    setIsLoading(true);
+    const userMessage: Message = { role: "user", content: input }
+    const allMessages = [...messages, userMessage]
+    setMessages(allMessages)
+    setInput("")
+    setIsLoading(true)
 
     try {
-      const response = await fetch('http://localhost:8000/api/chat', {
-        method: 'POST',
+      const response = await fetch("http://localhost:8000/api/chat", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ messages: allMessages }),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      const data = await response.json();
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { role: 'assistant', content: data.text },
-      ]);
+      const data = await response.json()
+      setMessages((prevMessages) => [...prevMessages, { role: "assistant", content: data.text }])
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error("Error sending message:", error)
       setMessages((prevMessages) => [
         ...prevMessages,
-        { role: 'assistant', content: 'Error: Could not connect to the chat service.' },
-      ]);
+        {
+          role: "assistant",
+          content: "Error: Could not connect to the chat service.",
+        },
+      ])
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && !isLoading) {
-      sendMessage();
+    if (event.key === "Enter" && !isLoading) {
+      sendMessage()
     }
-  };
+  }
 
+  const clearChat = () => {
+    setMessages([])
+  }
 
   return (
     <>
-      {isOpen && (
-        <div style={{
-          position: 'fixed',
-          bottom: '100px',
-          right: '20px',
-          width: '350px',
-          height: '500px',
-          backgroundColor: '#282c34', // Dark background
-          color: '#ffffff', // White text
-          borderRadius: '10px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          flexDirection: 'column',
-          zIndex: 9998,
-          overflow: 'hidden',
-          fontFamily: 'Arial, sans-serif'
-        }}>
-          <div style={{
-            padding: '15px',
-            backgroundColor: '#1e2127',
-            borderBottom: '1px solid #3a3f4a',
-            borderTopLeftRadius: '10px',
-            borderTopRightRadius: '10px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
-            <h3 style={{ margin: 0, fontSize: '1.1em' }}>GenAI Handbook Chat</h3>
-            <button
-              onClick={() => setIsOpen(false)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#ffffff',
-                fontSize: '1.5em',
-                cursor: 'pointer',
-                padding: '0 5px'
-              }}
-            >
-              &times;
-            </button>
+      {/* Chat Window */}
+      <div className={`${styles.chatWindow} ${isOpen ? styles.open : ""}`}>
+        {/* Header */}
+        <div className={styles.header}>
+          <div className={styles.headerLeft}>
+            <div className={styles.statusIndicator}></div>
+            <div className={styles.headerInfo}>
+              <h3 className={styles.headerTitle}>Physical AI Assistant</h3>
+              <span className={styles.headerStatus}>Online</span>
+            </div>
           </div>
-          <div style={{ flexGrow: 1, padding: '15px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {messages.map((msg, index) => (
-              <div
-                key={index}
-                style={{
-                  alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                  backgroundColor: msg.role === 'user' ? '#007bff' : '#4a515c',
-                  padding: '8px 12px',
-                  borderRadius: '15px',
-                  maxWidth: '80%',
-                  wordBreak: 'break-word',
-                  fontSize: '0.9em'
-                }}
+          <div className={styles.headerActions}>
+            <button onClick={clearChat} className={styles.headerButton} title="Clear chat">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                {msg.content}
-              </div>
-            ))}
-            {isLoading && (
-              <div style={{ alignSelf: 'flex-start', padding: '8px 12px', borderRadius: '15px', backgroundColor: '#4a515c', fontSize: '0.9em' }}>
-                ...
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-          <div style={{ padding: '15px', borderTop: '1px solid #3a3f4a', display: 'flex', alignItems: 'center', backgroundColor: '#1e2127', borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px' }}>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask me anything..."
-              style={{
-                flexGrow: 1,
-                padding: '10px',
-                borderRadius: '5px',
-                border: '1px solid #555',
-                backgroundColor: '#3a3f4a',
-                color: '#ffffff',
-                marginRight: '10px',
-                fontSize: '0.9em'
-              }}
-              disabled={isLoading}
-            />
-            <button
-              onClick={sendMessage}
-              style={{
-                backgroundColor: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                padding: '10px 15px',
-                cursor: 'pointer',
-                fontSize: '0.9em',
-                fontWeight: 'bold'
-              }}
-              disabled={isLoading}
-            >
-              Send
+                <path d="M3 6h18" />
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+              </svg>
+            </button>
+            <button onClick={() => setIsOpen(false)} className={styles.headerButton} title="Close chat">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M18 6L6 18" />
+                <path d="M6 6l12 12" />
+              </svg>
             </button>
           </div>
         </div>
-      )}
+
+        {/* Messages */}
+        <div className={styles.messagesContainer}>
+          {messages.length === 0 && (
+            <div className={styles.welcomeMessage}>
+              <div className={styles.welcomeIcon}>
+                <svg
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 8V4H8" />
+                  <rect width="16" height="12" x="4" y="8" rx="2" />
+                  <path d="M2 14h2" />
+                  <path d="M20 14h2" />
+                  <path d="M15 13v2" />
+                  <path d="M9 13v2" />
+                </svg>
+              </div>
+              <h4>Welcome to Physical AI Assistant</h4>
+              <p>Ask me anything about the course, robotics, or generative AI!</p>
+            </div>
+          )}
+
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`${styles.message} ${msg.role === "user" ? styles.userMessage : styles.assistantMessage}`}
+            >
+              {msg.role === "assistant" && (
+                <div className={styles.messageAvatar}>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 8V4H8" />
+                    <rect width="16" height="12" x="4" y="8" rx="2" />
+                    <path d="M2 14h2" />
+                    <path d="M20 14h2" />
+                    <path d="M15 13v2" />
+                    <path d="M9 13v2" />
+                  </svg>
+                </div>
+              )}
+              <div className={styles.messageContent}>{msg.content}</div>
+            </div>
+          ))}
+
+          {isLoading && (
+            <div className={`${styles.message} ${styles.assistantMessage}`}>
+              <div className={styles.messageAvatar}>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 8V4H8" />
+                  <rect width="16" height="12" x="4" y="8" rx="2" />
+                  <path d="M2 14h2" />
+                  <path d="M20 14h2" />
+                  <path d="M15 13v2" />
+                  <path d="M9 13v2" />
+                </svg>
+              </div>
+              <div className={styles.typingIndicator}>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input */}
+        <div className={styles.inputContainer}>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Type your message..."
+            className={styles.input}
+            disabled={isLoading}
+          />
+          <button onClick={sendMessage} className={styles.sendButton} disabled={isLoading || input.trim() === ""}>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M22 2L11 13" />
+              <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          right: '20px',
-          width: '60px',
-          height: '60px',
-          borderRadius: '50%',
-          backgroundColor: '#007bff', // Primary blue
-          color: 'white',
-          fontSize: '2em',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          cursor: 'pointer',
-          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.4)',
-          border: 'none',
-          zIndex: 9999
-        }}
+        className={`${styles.toggleButton} ${isOpen ? styles.active : ""}`}
+        aria-label={isOpen ? "Close chat" : "Open chat"}
       >
-        🤖
+        {isOpen ? (
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M18 6L6 18" />
+            <path d="M6 6l12 12" />
+          </svg>
+        ) : (
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+        )}
       </button>
     </>
-  );
-};
+  )
+}
 
-export default ChatWidget;
+export default ChatWidget
