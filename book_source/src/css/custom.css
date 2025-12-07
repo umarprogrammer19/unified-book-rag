@@ -20,6 +20,7 @@
   --ifm-color-primary-lighter: #359962;
   --ifm-color-primary-lightest: #3cad6e;
   --ifm-code-font-size: 95%;
+  --ifm-background-color: black;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
   /* Primary - Teal/Green */
   --color-primary: #00d4aa;
@@ -99,7 +100,7 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-bg);
+  background-color: var(--ifm-background-color);
   color: var(--color-text);
   line-height: 1.6;
   padding: 80px 0 0 0;
