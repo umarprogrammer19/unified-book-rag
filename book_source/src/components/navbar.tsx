@@ -80,10 +80,10 @@ export function Navbar() {
         <Link href="#modules" className={styles.mobileLink} onClick={() => setIsOpen(false)}>
           Modules
         </Link>
-        <Link href="/docs/category/syllabus" className={styles.mobileLink} onClick={() => setIsOpen(false)}>
+        <Link href="/docs/Module 01 Hardware-Lab/1.1-physical-ai-foundations-basics" className={styles.mobileLink} onClick={() => setIsOpen(false)}>
           Syllabus
         </Link>
-        <Link href="/docs" className={styles.mobileLink} onClick={() => setIsOpen(false)}>
+        <Link href="/docs/Module 01 Hardware-Lab/1.1-physical-ai-foundations-basics" className={styles.mobileLink} onClick={() => setIsOpen(false)}>
           Documentation
         </Link>
         <div className={styles.mobileActions}>

@@ -92,7 +92,7 @@ const Login = () => {
           </div>
 
           <div className={styles.forgotPassword}>
-            <Link href="/forgot-password">Forgot password?</Link>
+            
           </div>
 
           {error && (
