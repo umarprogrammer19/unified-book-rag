@@ -4,16 +4,17 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background: rgba(9, 9, 11, 0.85);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg); /* Use a consistent background */
+  transition: all 0.3s ease;
+  border-bottom: 1px solid var(--color-border); /* Add a border for definition */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3); /* Keep a subtle shadow */
 }
 
 .container {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 var(--spacing-lg);
-  height: 64px;
+  padding: 0 var(--spacing-xl);
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -25,59 +26,114 @@
   gap: var(--spacing-sm);
 }
 
-/* Updated logo colors to teal */
 .logoIcon {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, rgba(0, 212, 170, 0.15), rgba(0, 184, 212, 0.15));
-  border: 1px solid rgba(0, 212, 170, 0.3);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-primary);
+  color: #09090b;
+  box-shadow: 0 4px 12px rgba(0, 212, 170, 0.3);
 }
 
 .logoText {
-  font-weight: 600;
-  font-size: 1.1rem;
+  font-weight: 700;
+  font-size: 1.2rem;
   color: var(--color-text);
+  letter-spacing: -0.02em;
+}
+
+/* Added beta badge styling */
+.betaBadge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  background: rgba(0, 212, 170, 0.15);
+  color: var(--color-primary);
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(0, 212, 170, 0.3);
 }
 
 .navLinks {
   display: none;
   align-items: center;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-lg);
 }
 
 .navLink {
   font-size: 0.9rem;
+  font-weight: 500;
   color: var(--color-text-secondary);
   transition: color var(--transition-fast);
+  position: relative;
+  padding: var(--spacing-xs) 0;
+}
+
+.navLink::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--color-primary);
+  transition: width var(--transition-fast);
 }
 
 .navLink:hover {
   color: var(--color-text);
 }
 
+.navLink:hover::after {
+  width: 100%;
+}
+
 .navActions {
   display: none;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
 }
 
-.docLink {
+/* Added login button styling */
+.loginBtn {
+  padding: var(--spacing-sm) var(--spacing-md);
   font-size: 0.9rem;
+  font-weight: 500;
   color: var(--color-text-secondary);
   transition: color var(--transition-fast);
 }
 
-.docLink:hover {
+.loginBtn:hover {
   color: var(--color-text);
 }
 
-/* Updated button colors to teal */
+/* Added signup button styling */
+.signupBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  border: 1px solid rgba(0, 212, 170, 0.4);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.signupBtn:hover {
+  background: rgba(0, 212, 170, 0.1);
+  border-color: var(--color-primary);
+}
+
 .ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: var(--spacing-sm) var(--spacing-lg);
   background: var(--color-primary);
   color: #09090b;
@@ -85,38 +141,101 @@
   font-weight: 600;
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
+  box-shadow: 0 2px 12px rgba(0, 212, 170, 0.25);
 }
 
 .ctaButton:hover {
   background: var(--color-primary-light);
   transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 212, 170, 0.35);
+}
+
+.ctaButton svg {
+  transition: transform var(--transition-fast);
+}
+
+.ctaButton:hover svg {
+  transform: translateX(3px);
 }
 
 .menuButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   color: var(--color-text-secondary);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
 }
 
+.menuButton:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* Improved mobile menu with animation */
 .mobileMenu {
   display: flex;
   flex-direction: column;
   padding: var(--spacing-lg);
+  background: rgba(9, 9, 11, 0.98);
+  backdrop-filter: blur(20px);
   border-top: 1px solid var(--color-border);
-  gap: var(--spacing-md);
+  gap: var(--spacing-xs);
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.mobileMenuOpen {
+  max-height: 500px;
+  opacity: 1;
+  padding: var(--spacing-xl);
 }
 
 .mobileLink {
-  padding: var(--spacing-sm) 0;
-  font-size: 0.95rem;
+  padding: var(--spacing-md) 0;
+  font-size: 1rem;
+  font-weight: 500;
   color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
+  transition: color var(--transition-fast);
+}
+
+.mobileLink:hover {
+  color: var(--color-primary);
+}
+
+.mobileActions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.mobileLoginBtn {
+  flex: 1;
+  padding: var(--spacing-md);
+  text-align: center;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+}
+
+.mobileSignupBtn {
+  flex: 1;
+  padding: var(--spacing-md);
+  text-align: center;
+  font-weight: 500;
+  color: var(--color-primary);
+  border: 1px solid rgba(0, 212, 170, 0.4);
+  border-radius: var(--radius-md);
 }
 
 .mobileCta {
-  margin-top: var(--spacing-sm);
+  margin-top: var(--spacing-md);
   padding: var(--spacing-md);
   background: var(--color-primary);
   color: #09090b;
@@ -125,7 +244,7 @@
   border-radius: var(--radius-md);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .navLinks {
     display: flex;
   }

@@ -6,7 +6,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   clientModules: [require.resolve('./src/theme/Root.js')],
-  title: 'Physical AI Course',
+  title: 'Physical AI & Humonoid Robotics Course',
   tagline: 'Your Comprehensive Guide to Mastering Generative AI',
   favicon: 'img/robotics_favicon.ico',
 
@@ -72,6 +72,10 @@ const config: Config = {
   ],
 
   themeConfig: {
+    navbar: {
+      hideOnScroll: false,
+      style: 'dark',
+    },
     customFields: {
       swizzleActive: true,
     },
@@ -113,7 +117,7 @@ const config: Config = {
             },
             {
               label: 'GitHub',
-              href: 'https://github.com/umarprogrammer19/unified-book-rag',
+              href: 'https://github.com/umarprogrammer19',
             },
           ],
         },
