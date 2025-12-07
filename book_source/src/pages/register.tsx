@@ -1,170 +1,222 @@
-import React, { useState } from 'react';
-import Layout from '@theme/Layout';
-import { signup } from '../services/authService';
-import { useHistory } from '@docusaurus/router';
+"use client"
+
+import type React from "react"
+import { useState } from "react"
+import styles from "./register.module.css"
+import Link from "@docusaurus/Link"
+
+const softwareOptions = ["Python", "C++", "ROS/ROS2", "JavaScript/Web", "Beginner"]
+const hardwareOptions = ["Arduino/ESP", "Raspberry Pi", "NVIDIA Jetson", "Desktop GPU", "None"]
 
 const Register = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [softwareBackground, setSoftwareBackground] = useState('');
-  const [hardwareBackground, setHardwareBackground] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const history = useHistory();
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [softwareBackground, setSoftwareBackground] = useState("")
+  const [hardwareBackground, setHardwareBackground] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    try {
-      await signup(email, password, softwareBackground, hardwareBackground);
-      history.push('/login'); // Redirect to login page or home
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred.');
-    } finally {
-      setLoading(false);
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.")
+      setLoading(false)
+      return
     }
-  };
+
+    try {
+      // await signup(email, password, softwareBackground, hardwareBackground);
+      window.location.href = "/login"
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred.")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <Layout title="Register" description="Register for an account">
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '2rem 0',
-          minHeight: '90vh',
-          margin: "50px 0 0 0"
-        }}
-      >
-        <div
-          style={{
-            width: '100%',
-            maxWidth: '400px',
-            padding: '2rem',
-            borderRadius: '8px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            backgroundColor: 'var(--ifm-background-color)',
-            fontFamily:
-              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-          }}
-        >
-          <h1 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Register</h1>
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', }}>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              style={{
-                padding: '0.8rem',
-                border: '1px solid var(--ifm-color-emphasis-300)',
-                borderRadius: '4px',
-              }}
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              style={{
-                padding: '0.8rem',
-                border: '1px solid var(--ifm-color-emphasis-300)',
-                borderRadius: '4px',
-              }}
-            />
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ marginBottom: '0.5rem', display: 'block' }}>Software Background:</label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                {['Python', 'C++', 'ROS/ROS2', 'JavaScript/Web', 'Beginner'].map((option) => (
-                  <button
-                    type="button"
-                    key={option}
-                    onClick={() => setSoftwareBackground(option)}
-                    style={{
-                      padding: '0.6rem 1rem',
-                      borderRadius: '20px',
-                      border:
-                        softwareBackground === option
-                          ? '1px solid var(--ifm-color-primary)'
-                          : '1px solid var(--ifm-color-emphasis-400)',
-                      backgroundColor:
-                        softwareBackground === option
-                          ? 'var(--ifm-color-primary)'
-                          : 'transparent',
-                      color:
-                        softwareBackground === option
-                          ? 'white'
-                          : 'var(--ifm-font-color-base)',
-                      cursor: 'pointer',
-                      fontSize: '0.9rem',
-                      transition: 'all 0.2s ease-in-out',
-                    }}
-                  >
-                    {option}
-                  </button>
-                ))}
+    <div className={styles.container}>
+      <div className={styles.backgroundPattern}></div>
+      <div className={styles.card}>
+        <div className={styles.cardHeader}>
+          <div className={styles.logoIcon}>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 2L2 7l10 5 10-5-10-5z" />
+              <path d="M2 17l10 5 10-5" />
+              <path d="M2 12l10 5 10-5" />
+            </svg>
+          </div>
+          <h1 className={styles.title}>Create Account</h1>
+          <p className={styles.subtitle}>Join the Physical AI learning community</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="email" className={styles.label}>
+              Email Address
+            </label>
+            <div className={styles.inputWrapper}>
+              <svg className={styles.inputIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+              <input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className={styles.input}
+              />
+            </div>
+          </div>
+
+          <div className={styles.row}>
+            <div className={styles.inputGroup}>
+              <label htmlFor="password" className={styles.label}>
+                Password
+              </label>
+              <div className={styles.inputWrapper}>
+                <svg className={styles.inputIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                <input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className={styles.input}
+                />
               </div>
             </div>
 
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ marginBottom: '0.5rem', display: 'block' }}>Hardware Background:</label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                {['Arduino/ESP', 'Raspberry Pi', 'NVIDIA Jetson', 'Desktop GPU', 'None'].map((option) => (
-                  <button
-                    type="button"
-                    key={option}
-                    onClick={() => setHardwareBackground(option)}
-                    style={{
-                      padding: '0.6rem 1rem',
-                      borderRadius: '20px',
-                      border:
-                        hardwareBackground === option
-                          ? '1px solid var(--ifm-color-primary)'
-                          : '1px solid var(--ifm-color-emphasis-400)',
-                      backgroundColor:
-                        hardwareBackground === option
-                          ? 'var(--ifm-color-primary)'
-                          : 'transparent',
-                      color:
-                        hardwareBackground === option
-                          ? 'white'
-                          : 'var(--ifm-font-color-base)',
-                      cursor: 'pointer',
-                      fontSize: '0.9rem',
-                      transition: 'all 0.2s ease-in-out',
-                    }}
-                  >
-                    {option}
-                  </button>
-                ))}
+            <div className={styles.inputGroup}>
+              <label htmlFor="confirmPassword" className={styles.label}>
+                Confirm Password
+              </label>
+              <div className={styles.inputWrapper}>
+                <svg className={styles.inputIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  className={styles.input}
+                />
               </div>
             </div>
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                padding: '0.8rem 1.2rem',
-                backgroundColor: 'var(--ifm-color-primary)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.7 : 1,
-                fontSize: '1rem',
-              }}
-            >
-              {loading ? 'Loading...' : 'Register'}
-            </button>
-            {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
-          </form>
+          </div>
+
+          <div className={styles.selectionGroup}>
+            <label className={styles.label}>
+              <span className={styles.labelIcon}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="16 18 22 12 16 6" />
+                  <polyline points="8 6 2 12 8 18" />
+                </svg>
+              </span>
+              Software Background
+            </label>
+            <div className={styles.optionButtons}>
+              {softwareOptions.map((option) => (
+                <button
+                  type="button"
+                  key={option}
+                  onClick={() => setSoftwareBackground(option)}
+                  className={`${styles.optionButton} ${softwareBackground === option ? styles.optionButtonActive : ""}`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.selectionGroup}>
+            <label className={styles.label}>
+              <span className={styles.labelIcon}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="4" y="4" width="16" height="16" rx="2" ry="2" />
+                  <rect x="9" y="9" width="6" height="6" />
+                  <line x1="9" y1="1" x2="9" y2="4" />
+                  <line x1="15" y1="1" x2="15" y2="4" />
+                  <line x1="9" y1="20" x2="9" y2="23" />
+                  <line x1="15" y1="20" x2="15" y2="23" />
+                  <line x1="20" y1="9" x2="23" y2="9" />
+                  <line x1="20" y1="14" x2="23" y2="14" />
+                  <line x1="1" y1="9" x2="4" y2="9" />
+                  <line x1="1" y1="14" x2="4" y2="14" />
+                </svg>
+              </span>
+              Hardware Background
+            </label>
+            <div className={styles.optionButtons}>
+              {hardwareOptions.map((option) => (
+                <button
+                  type="button"
+                  key={option}
+                  onClick={() => setHardwareBackground(option)}
+                  className={`${styles.optionButton} ${hardwareBackground === option ? styles.optionButtonActive : ""}`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {error && (
+            <div className={styles.errorMessage}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              {error}
+            </div>
+          )}
+
+          <button type="submit" disabled={loading} className={styles.submitButton}>
+            {loading ? (
+              <span className={styles.loadingSpinner}></span>
+            ) : (
+              <>
+                Create Account
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </>
+            )}
+          </button>
+        </form>
+
+        <div className={styles.cardFooter}>
+          <p>
+            Already have an account? <Link href="/login">Sign in</Link>
+          </p>
         </div>
       </div>
-    </Layout>
-  );
-};
+    </div>
+  )
+}
 
-export default Register;
+export default Register
