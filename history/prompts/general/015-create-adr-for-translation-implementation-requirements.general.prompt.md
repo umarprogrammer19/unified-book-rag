@@ -30,7 +30,7 @@ tests:
 
 ## Response snapshot
 
-Created Architecture Decision Record (ADR) for translation implementation requirements. The ADR (history/adr/001-translation-implementation-requirements.md) documents the key constraints for implementing Urdu translation capabilities while maintaining technical content integrity. The decision covers security practices (API key handling), performance considerations (using gemini-1.5-flash), data integrity (preserving Markdown syntax), linguistic constraints (keeping technical terms in English), and UI/UX requirements (RTL rendering for Urdu).
+Created Architecture Decision Record (ADR) for translation implementation requirements. The ADR (history/adr/001-translation-implementation-requirements.md) documents the key constraints for implementing Urdu translation capabilities while maintaining technical content integrity. The decision covers security practices (API key handling), performance considerations (using gemini-2.5-flash), data integrity (preserving Markdown syntax), linguistic constraints (keeping technical terms in English), and UI/UX requirements (RTL rendering for Urdu).
 
 ## Outcome
 
