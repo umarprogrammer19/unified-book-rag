@@ -1,43 +1,28 @@
-// Mock translation service for Urdu translation
-export const translateToUrdu = async (text) => {
-  // In a real implementation, this would call an LLM API
-  // For now, we'll return a mock translation with some Urdu characters
-  // This is just for demonstration purposes
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
+// Initialize the Gemini API client
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+export const translateToUrdu = async (text) => {
   console.log('Translating to Urdu:', text.substring(0, 50) + '...');
 
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500));
+  try {
+    // Define the system instruction for the translation
+    const systemInstruction = "You are a technical translator. Convert the following text to Urdu. Preserve ALL Markdown formatting exactly. Do NOT translate code blocks, variable names, or technical path parameters. Output ONLY the translated string.";
 
-  // Mock translation - in a real app, this would connect to an actual translation API
-  // For demonstration, we'll return the original text with some "Urdu-like" placeholder text
-  const mockTranslations = {
-    "Hello": "ہیلو",
-    "Welcome": "خوش آمدید",
-    "Documentation": "دستاویزات",
-    "Introduction": "تعارف",
-    "Chapter": "باب",
-    "Section": "حصہ",
-    "Content": "مواد",
-    "Text": "متن",
-    "Translation": "ترجمہ",
-    "Page": "صفحہ",
-    "Book": "کتاب",
-    "AI": "مصنوعی ذہانت",
-    "Robotics": "روبوٹکس"
-  };
+    // Create the full prompt with the system instruction
+    const prompt = `${systemInstruction}\n\nTranslate the following text to Urdu:\n\n${text}`;
 
-  // Simple word replacement for demo purposes
-  let translated = text;
-  for (const [english, urdu] of Object.entries(mockTranslations)) {
-    const regex = new RegExp(english, 'gi');
-    translated = translated.replace(regex, urdu);
+    // Generate content using the Gemini API
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const translatedText = response.text();
+
+    console.log('Translation completed successfully');
+    return translatedText;
+  } catch (error) {
+    console.error('Error during translation:', error);
+    throw new Error(`Translation failed: ${error.message}`);
   }
-
-  // If the text is mostly unchanged, add a note that it's a mock translation
-  if (translated === text) {
-    translated = ` mock_urdu_start ${text} mock_urdu_end `;
-  }
-
-  return translated;
 };

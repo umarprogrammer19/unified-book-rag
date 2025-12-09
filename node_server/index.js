@@ -7,7 +7,10 @@ import translationRoutes from "./routes/translation.js";
 const app = express();
 const port = process.env.PORT;
 
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5000'],
+  credentials: true
+}));
 app.use(express.json()); 
 
 // Routes
