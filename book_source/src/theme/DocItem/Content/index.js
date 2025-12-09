@@ -1,58 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Content from '@theme-original/DocItem/Content';
 
 export default function ContentWrapper(props) {
   const [loading, setLoading] = useState(false);
   const [translation, setTranslation] = useState('');
   const [showUrdu, setShowUrdu] = useState(false);
+  const [translations, setTranslations] = useState({});
 
-  const handleTranslate = async () => {
-    setLoading(true);
-    setShowUrdu(true);
-    try {
-      // Get the current content as text
-      const contentElement = document.querySelector('[data-testid="doc-markdown"]');
-      let content = '';
-
-      if (contentElement) {
-        content = contentElement.innerText || contentElement.textContent || '';
-      } else {
-        // Fallback: try to get content from the rendered markdown
-        const markdownElements = document.querySelectorAll('.markdown');
-        if (markdownElements.length > 0) {
-          content = Array.from(markdownElements).map(el => el.innerText || el.textContent || '').join('\n');
+  // Load translations from the JSON file
+  useEffect(() => {
+    const loadTranslations = async () => {
+      try {
+        const response = await fetch('/src/data/urduTranslations.json');
+        if (response.ok) {
+          const data = await response.json();
+          setTranslations(data);
+        } else {
+          console.warn('Translations file not found, translation feature will be limited');
         }
+      } catch (error) {
+        console.error('Error loading translations:', error);
+      }
+    };
+
+    loadTranslations();
+  }, []);
+
+  const handleTranslate = () => {
+    setLoading(true);
+    try {
+      // Get the current document's relative path
+      // This uses the Docusaurus route to identify the document
+      const currentPath = window.location.pathname;
+      const pathParts = currentPath.split('/');
+      // Remove 'docs' and any trailing slash or index
+      let docPath = pathParts.slice(2).join('/'); // Skip /docs/
+
+      // Handle index files
+      if (docPath.endsWith('/')) {
+        docPath = docPath + 'index.md';
+      } else if (docPath && !docPath.endsWith('.md')) {
+        docPath = docPath + '.md';
       }
 
-      if (!content) {
-        // If we can't get content from DOM, try to get it from props
-        console.warn('Could not extract content from DOM, translation may be limited');
-        content = 'Content could not be extracted from the page. Translation is limited to visible text.';
+      if (!docPath) {
+        docPath = 'index.md';
       }
 
-      const response = await fetch('http://localhost:5000/api/translate/translate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: content,
-          source_language: 'en',
-          target_language: 'ur',
-          preserve_formatting: true,
-          preserve_code: true
-        }),
-      });
+      // Look up the pre-translated content
+      const translatedContent = translations[docPath]?.translated;
 
-      if (!response.ok) {
-        throw new Error(`Translation API error: ${response.status}`);
+      if (translatedContent) {
+        setTranslation(translatedContent);
+        setShowUrdu(true);
+      } else {
+        setTranslation('Translation not available for this document.');
+        setShowUrdu(true);
+        console.warn(`Translation not found for: ${docPath}`);
       }
-
-      const data = await response.json();
-      setTranslation(data.translated_text);
     } catch (error) {
-      console.error('Translation error:', error);
-      setTranslation('Translation failed. Please try again later.');
+      console.error('Error getting translation:', error);
+      setTranslation('Translation not available for this document.');
+      setShowUrdu(true);
     } finally {
       setLoading(false);
     }
@@ -72,7 +81,7 @@ export default function ContentWrapper(props) {
             disabled={loading}
             className="translate-button"
           >
-            {loading ? 'Translating...' : '.Translate to Urdu'}
+            {loading ? 'Loading...' : '.Translate to Urdu'}
           </button>
         ) : (
           <button
@@ -91,7 +100,7 @@ export default function ContentWrapper(props) {
           {translation ? (
             <div className="urdu-text" dangerouslySetInnerHTML={{ __html: translation.replace(/\n/g, '<br />') }} />
           ) : (
-            <p>Translating content...</p>
+            <p>Loading translation...</p>
           )}
         </div>
       ) : (
