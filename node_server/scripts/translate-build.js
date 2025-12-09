@@ -95,8 +95,13 @@ async function translateAllMarkdownFiles() {
     const outputPath = path.join(outputDir, 'urduTranslations.json');
     await fs.writeFile(outputPath, JSON.stringify(translations, null, 2));
 
+    // Also copy the file to the Docusaurus static directory so it's accessible at /urduTranslations.json
+    const staticPath = path.join(process.cwd(), '..', 'book_source', 'static', 'urduTranslations.json');
+    await fs.writeFile(staticPath, JSON.stringify(translations, null, 2));
+
     console.log(`\nTranslation completed! ${Object.keys(translations).length} files translated.`);
     console.log(`Translations saved to: ${outputPath}`);
+    console.log(`Translations also copied to: ${staticPath}`);
   } catch (error) {
     console.error('Error during translation process:', error);
     throw error;
