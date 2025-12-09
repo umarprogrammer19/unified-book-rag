@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "fs/promises";
 import path from "path";
+import "dotenv/config";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
@@ -8,24 +9,48 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 // Define the system instruction for the translation
 const systemInstruction = "You are a technical translator. Convert the following text to Urdu. Preserve ALL Markdown formatting exactly. Do NOT translate code blocks, variable names, or technical path parameters. Output ONLY the translated string.";
 
+// API rate limiting: 5 requests per minute (12 seconds delay between requests to stay under limit)
+const RATE_LIMIT_DELAY = 12000; // 12 seconds delay to respect 5 RPM limit (60 sec / 5 req = 12 sec)
+
 async function translateToUrdu(text) {
-  try {
-    const prompt = `${systemInstruction}\n\nTranslate the following text to Urdu:\n\n${text}`;
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const translatedText = response.text();
-    return translatedText;
-  } catch (error) {
-    console.error('Translation error:', error);
-    throw new Error(`Translation failed: ${error.message}`);
+  const maxRetries = 3;
+  let attempts = 0;
+
+  while (attempts < maxRetries) {
+    try {
+      const prompt = `${systemInstruction}\n\nTranslate the following text to Urdu:\n\n${text}`;
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const translatedText = response.text();
+      return translatedText;
+    } catch (error) {
+      console.error(`Translation attempt ${attempts + 1} failed:`, error.message);
+
+      if (error.status === 429) { // Rate limit error
+        // Extract retry delay from error if available, otherwise use exponential backoff
+        const retryAfter = error.errorDetails?.find(detail => detail['@type'] === 'type.googleapis.com/google.rpc.RetryInfo')?.retryDelay || '4s';
+        const delaySeconds = parseInt(retryAfter.replace('s', '')) || 4;
+        const delayMs = delaySeconds * 1000;
+
+        console.log(`Rate limited. Waiting ${delayMs}ms before retry...`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+        attempts++;
+      } else {
+        // For other errors, don't retry
+        throw new Error(`Translation failed: ${error.message}`);
+      }
+    }
   }
+
+  throw new Error(`Translation failed after ${maxRetries} attempts`);
 }
 
 async function translateAllMarkdownFiles() {
   console.log("Starting translation of all Markdown files...");
+  console.log("Rate limiting: 5 requests per minute (12 second delay between requests)");
 
-  const docsDir = path.join(process.cwd(), 'book_source', 'docs');
-  const outputDir = path.join(process.cwd(), 'book_source', 'src', 'data');
+  const docsDir = path.join(process.cwd(), '..', 'book_source', 'docs');
+  const outputDir = path.join(process.cwd(), '..', 'book_source', 'src', 'data');
 
   try {
     // Ensure output directory exists
@@ -38,8 +63,9 @@ async function translateAllMarkdownFiles() {
 
     const translations = {};
 
-    for (const file of files) {
-      console.log(`Translating: ${file}`);
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      console.log(`Translating (${i+1}/${files.length}): ${file}`);
 
       try {
         const content = await fs.readFile(file, 'utf8');
@@ -56,6 +82,12 @@ async function translateAllMarkdownFiles() {
         console.log(`✓ Translated: ${relativePath}`);
       } catch (error) {
         console.error(`✗ Failed to translate: ${file}`, error.message);
+      }
+
+      // Implement rate limiting - delay between requests to respect 10 RPM limit
+      if (i < files.length - 1) { // Don't delay after the last request
+        console.log(`Waiting ${RATE_LIMIT_DELAY/1000} seconds to respect API rate limits...`);
+        await new Promise(resolve => setTimeout(resolve, RATE_LIMIT_DELAY));
       }
     }
 
