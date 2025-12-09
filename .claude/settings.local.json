@@ -46,7 +46,9 @@
       "Bash(npm uninstall:*)",
       "Bash(npm run start)",
       "Bash(npx docusaurus start --port 3000)",
-      "SlashCommand(/sp.tasks)"
+      "SlashCommand(/sp.tasks)",
+      "Bash(dir \"D:\\unified-book-rag\\book_source\\src\\data\\urduTranslations.json\")",
+      "Bash(powershell -Command \"Get-Content ''D:\\unified-book-rag\\book_source\\src\\data\\urduTranslations.json'' -TotalCount 20\")"
     ],
     "deny": [],
     "ask": []

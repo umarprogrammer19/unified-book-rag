@@ -8,6 +8,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "translate-build": "node scripts/translate-build.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

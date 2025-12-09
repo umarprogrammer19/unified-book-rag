@@ -72,6 +72,14 @@ const config: Config = {
     ],
   ],
 
+  stylesheets: [
+    {
+      href: 'https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap',
+      type: 'text/css',
+      rel: 'stylesheet',
+    },
+  ],
+
   themeConfig: {
     navbar: {
       hideOnScroll: false,

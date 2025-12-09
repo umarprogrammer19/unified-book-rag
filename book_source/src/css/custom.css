@@ -238,17 +238,25 @@ button {
   direction: rtl;
   font-family: 'Noto Nastaliq Urdu', serif !important;
   padding: var(--spacing-lg);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--ifm-color-emphasis-300, #dfe1e5);
   border-radius: var(--radius-md);
-  background-color: var(--color-bg-secondary);
+  background-color: var(--ifm-background-color, #ffffff);
+  color: var(--ifm-font-color-base, #222222);
   margin: var(--spacing-md) 0;
   line-height: 1.8;
+  min-height: 200px;
 }
 
 .urdu-text {
   font-family: 'Noto Nastaliq Urdu', serif !important;
   direction: rtl;
   text-align: right;
+  color: var(--ifm-font-color-base, #222222);
+}
+
+/* Ensure proper contrast and visibility */
+.urdu-translation-container * {
+  color: var(--ifm-font-color-base, #222222) !important;
 }
 
 /* Translation Button Styles */
