@@ -169,21 +169,19 @@ export default function ContentWrapper(props) {
             disabled={loading}
             className="translation-button"
             style={{
-              backgroundColor: '#4CAF50',
-              color: 'white',
-              border: 'none',
-              padding: '10px 15px',
-              textAlign: 'center',
-              textDecoration: 'none',
-              display: 'inline-block',
-              fontSize: '14px',
-              margin: '4px 2px',
-              cursor: 'pointer',
-              borderRadius: '4px',
-              fontWeight: 'bold'
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "var(--spacing-sm) var(--spacing-md)",
+              fontSize: "0.9rem",
+              fontWeight: "500",
+              color: "var(--color-primary)",
+              border: "1px solid rgba(0, 212, 170, 0.4)",
+              borderRadius: "var(--radius-md)",
+              transition: "all var(--transition-fast)",
             }}
           >
-            {loading ? 'Loading Translation...' : '.Translate to Urdu'}
+            {loading ? 'Loading Translation...' : 'Translate to Urdu'}
           </button>
         ) : (
           <button
@@ -193,14 +191,14 @@ export default function ContentWrapper(props) {
               backgroundColor: '#f44336',
               color: 'white',
               border: 'none',
-              padding: '10px 15px',
+              padding: '8px 20px',
               textAlign: 'center',
               textDecoration: 'none',
               display: 'inline-block',
               fontSize: '14px',
               margin: '4px 2px',
               cursor: 'pointer',
-              borderRadius: '4px',
+              borderRadius: "var(--radius-md)",
               fontWeight: 'bold'
             }}
           >
@@ -220,38 +218,41 @@ export default function ContentWrapper(props) {
             animation: 'spin 1s linear infinite'
           }}></div>
         )}
-      </div>
+      </div >
 
-      {showUrdu ? (
-        <div
-          className="urdu-translation-container"
-          style={{
-            direction: 'rtl',
-            fontFamily: 'Noto Nastaliq Urdu, serif',
-            fontSize: '18px',
-            lineHeight: '1.8',
-            padding: '20px',
-            backgroundColor: 'var(--ifm-background-color, #f9f9f9)',
-            borderRadius: '8px',
-            border: '1px solid var(--ifm-color-emphasis-300, #ddd)',
-            minHeight: '200px' // Ensure there's space even if loading
-          }}
-        >
-          {translation ? (
-            <div
-              className="urdu-text"
-              dangerouslySetInnerHTML={{ __html: translation }}
-              style={{
-                color: 'var(--ifm-font-color-base, #222)'
-              }}
-            />
-          ) : (
-            <p>Loading translation...</p>
-          )}
-        </div>
-      ) : (
-        <Content {...props} />
-      )}
+      {
+        showUrdu ? (
+          <div
+            className="urdu-translation-container"
+            style={{
+              direction: 'rtl',
+              fontFamily: 'Noto Nastaliq Urdu, serif',
+              fontSize: '18px',
+              lineHeight: '1.8',
+              padding: '20px',
+              backgroundColor: 'var(--ifm-background-color, #f9f9f9)',
+              borderRadius: '8px',
+              border: '1px solid var(--ifm-color-emphasis-300, #ddd)',
+              minHeight: '200px' // Ensure there's space even if loading
+            }}
+          >
+            {
+              translation ? (
+                <div
+                  className="urdu-text"
+                  dangerouslySetInnerHTML={{ __html: translation }}
+                  style={{
+                    color: 'var(--ifm-font-color-base, #222)'
+                  }
+                  }
+                />
+              ) : (
+                <p>Loading translation...</p>
+              )}
+          </div >
+        ) : (
+          <Content {...props} />
+        )}
     </>
   );
 }
