@@ -1,0 +1,156 @@
+openapi: 3.0.0
+info:
+  title: Translation API
+  description: API for translating educational content to Urdu while preserving formatting
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development server
+paths:
+  /translate:
+    post:
+      summary: Translate Markdown content to Urdu
+      description: Translates Markdown content to Urdu while preserving formatting and keeping technical terms in English
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TranslationRequest'
+      responses:
+        '200':
+          description: Successful translation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranslationResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /translate/chapter:
+    post:
+      summary: Translate a book chapter
+      description: Translates a book chapter from the book_source/docs directory to Urdu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChapterTranslationRequest'
+      responses:
+        '200':
+          description: Successful translation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranslationResponse'
+        '400':
+          description: Invalid request or chapter not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    TranslationRequest:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+          description: The raw Markdown text to be translated
+          example: "# Introduction to AI\n\nArtificial Intelligence (AI) is a branch of computer science..."
+        source_language:
+          type: string
+          description: The source language (default: en)
+          default: "en"
+          example: "en"
+        target_language:
+          type: string
+          description: The target language (default: ur)
+          default: "ur"
+          example: "ur"
+        preserve_formatting:
+          type: boolean
+          description: Whether to preserve Markdown formatting (default: true)
+          default: true
+        preserve_code:
+          type: boolean
+          description: Whether to preserve code blocks and technical terms (default: true)
+          default: true
+    ChapterTranslationRequest:
+      type: object
+      required:
+        - chapter_path
+      properties:
+        chapter_path:
+          type: string
+          description: Path to the chapter file in book_source/docs
+          example: "Module 01 Hardware-Lab/introduction.md"
+        target_language:
+          type: string
+          description: The target language (default: ur)
+          default: "ur"
+          example: "ur"
+    TranslationResponse:
+      type: object
+      required:
+        - translated_text
+        - source_language
+        - target_language
+        - success
+      properties:
+        translated_text:
+          type: string
+          description: The translated Markdown text
+          example: "# مصنوعی ذہانت\n\nمصنوعی ذہانت (AI) کمپیوٹر سائنس کی ایک شاخ ہے..."
+        source_language:
+          type: string
+          description: The detected source language
+          example: "en"
+        target_language:
+          type: string
+          description: The target language
+          example: "ur"
+        processing_time:
+          type: number
+          description: Time taken for translation in milliseconds
+          example: 1250
+        success:
+          type: boolean
+          description: Whether the translation was successful
+          example: true
+        error_message:
+          type: string
+          description: Error message if translation failed
+          example: null
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error type
+          example: "TRANSLATION_ERROR"
+        message:
+          type: string
+          description: Error description
+          example: "Failed to translate content due to API error"

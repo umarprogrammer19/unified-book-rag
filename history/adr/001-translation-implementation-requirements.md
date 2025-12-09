@@ -19,7 +19,7 @@ The project involves a book on "Teaching Physical AI & Humanoid Robotics" that n
 We will implement translation requirements with the following key constraints:
 
 - **Security**: API Keys (GEMINI_API_KEY) must never be hardcoded. Always use dotenv and process environment variables.
-- **Performance**: Use gemini-1.5-flash model. It is optimized for high-frequency, low-latency tasks like real-time translation.
+- **Performance**: Use gemini-2.5-flash model. It is optimized for high-frequency, low-latency tasks like real-time translation.
 - **Data Integrity**: The translation process must preserve Markdown syntax. Headers (#), Bold (**), Links ([]()), and Code Blocks (```) must remain intact.
 - **Linguistic Constraint**: Code keywords, variable names, and terminal commands must remain in English. Only documentation prose is to be translated to Urdu.
 - **UI/UX**: Urdu text must be rendered with direction: rtl (Right-to-Left) and a legible font (e.g., Noto Nastaliq Urdu).
@@ -48,7 +48,7 @@ We will implement translation requirements with the following key constraints:
 - Cons: More expensive, slower, harder to maintain consistency
 
 ### Alternative 2: Different Translation Model
-- Use gemini-1.0-pro or other models instead of gemini-1.5-flash
+- Use gemini-1.0-pro or other models instead of gemini-2.5-flash
 - Pros: Potentially different capabilities or pricing
 - Cons: May have lower performance for translation tasks, higher latency
 

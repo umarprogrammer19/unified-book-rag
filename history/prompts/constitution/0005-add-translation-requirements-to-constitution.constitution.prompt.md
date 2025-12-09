@@ -28,7 +28,7 @@ These rules govern how you should behave during implementation of translation.
 
 Security Principle: API Keys (GEMINI_API_KEY) must never be hardcoded. Always use dotenv and process environment variables.
 
-Performance Principle: Use gemini-1.5-flash. It is optimized for high-frequency, low-latency tasks like real-time translation.
+Performance Principle: Use gemini-2.5-flash. It is optimized for high-frequency, low-latency tasks like real-time translation.
 
 Data Integrity: The translation process must preserve Markdown syntax. Headers (#), Bold (**), Links ([]()), and Code Blocks (```) must remain intact.
 

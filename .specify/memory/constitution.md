@@ -47,7 +47,7 @@ Follow-up TODOs:
 
 ## 6. Translation Implementation Requirements
 *   **Security**: API Keys (GEMINI_API_KEY) must never be hardcoded. Always use dotenv and process environment variables.
-*   **Performance**: Use gemini-1.5-flash. It is optimized for high-frequency, low-latency tasks like real-time translation.
+*   **Performance**: Use gemini-2.5-flash. It is optimized for high-frequency, low-latency tasks like real-time translation.
 *   **Data Integrity**: The translation process must preserve Markdown syntax. Headers (#), Bold (**), Links ([]()), and Code Blocks (```) must remain intact.
 *   **Linguistic Constraint**: Code keywords, variable names, and terminal commands must remain in English. Only documentation prose is to be translated to Urdu.
 *   **UI/UX**: Urdu text must be rendered with direction: rtl (Right-to-Left) and a legible font (e.g., Noto Nastaliq Urdu).
