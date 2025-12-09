@@ -1,12 +1,9 @@
 <!--
 Sync Impact Report:
-Version change: 1.1.0 -> 1.2.0
-Modified principles:
-- 1. Project Goal: Phase 1 Book Generation -> 1. Active Focus: Phase 2 Backend Development
-- 3. Tech Stack (Frontend focus) -> 3. Tech Stack (Full Stack)
+Version change: 1.2.0 -> 1.3.0
+Modified principles: N/A
 Added sections:
-- 4. Backend Standards
-- 5. RAG Requirements
+- 6. Translation Implementation Requirements
 Removed sections: N/A
 Templates requiring updates:
 - .specify/templates/plan-template.md: ⚠ pending
@@ -48,8 +45,15 @@ Follow-up TODOs:
 *   **Search**: Hybrid Search (Keyword + Vector) MUST be preferred.
 *   **Accuracy**: Answers MUST be strictly based on the book context.
 
+## 6. Translation Implementation Requirements
+*   **Security**: API Keys (GEMINI_API_KEY) must never be hardcoded. Always use dotenv and process environment variables.
+*   **Performance**: Use gemini-1.5-flash. It is optimized for high-frequency, low-latency tasks like real-time translation.
+*   **Data Integrity**: The translation process must preserve Markdown syntax. Headers (#), Bold (**), Links ([]()), and Code Blocks (```) must remain intact.
+*   **Linguistic Constraint**: Code keywords, variable names, and terminal commands must remain in English. Only documentation prose is to be translated to Urdu.
+*   **UI/UX**: Urdu text must be rendered with direction: rtl (Right-to-Left) and a legible font (e.g., Noto Nastaliq Urdu).
+
 ## Governance
 <!-- Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 All development and architectural decisions must comply with this constitution. Amendments to this constitution require a documented proposal, approval from the architectural review board (ARB), and a clear migration plan for existing components. All pull requests and code reviews must verify compliance with these principles.
 
-**Version**: 1.2.0 | **Ratified**: 2025-11-28 | **Last Amended**: 2025-11-30
+**Version**: 1.3.0 | **Ratified**: 2025-11-28 | **Last Amended**: 2025-12-09
