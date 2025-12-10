@@ -1,6 +1,6 @@
 const BASE_URL = 'http://localhost:5000';
 
-export const signin = async (email, password) => {
+export const signin = async (email: string, password: string) => {
   const response = await fetch(`${BASE_URL}/api/auth/signin`, {
     method: 'POST',
     headers: {
@@ -18,7 +18,7 @@ export const signin = async (email, password) => {
   return response.json();
 };
 
-export const signup = async (email, password, software_background, hardware_background) => {
+export const signup = async (email: string, password: string, software_background: string, hardware_background: string) => {
   const response = await fetch(`${BASE_URL}/api/auth/signup`, {
     method: 'POST',
     headers: {
