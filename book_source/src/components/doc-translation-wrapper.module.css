@@ -1,0 +1,17 @@
+.docWrapper {
+  position: relative;
+}
+
+.translationToolbar {
+  position: sticky;
+  top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  z-index: 100;
+  padding: 0 10px;
+}
+
+.docContent {
+  /* Keep original styling for document content */
+}

@@ -8,9 +8,11 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "translate-build": "node scripts/translate-build.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^3.0.3",
     "better-auth": "^1.4.5",
     "cors": "^2.8.5",

@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react"
 import Link from "@docusaurus/Link"
+import { translateToUrdu } from '@site/src/services/translationService';
 import styles from "./navbar.module.css"
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [isTranslating, setIsTranslating] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -13,6 +15,31 @@ export function Navbar() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  const handleTranslateClick = async () => {
+    if (isTranslating) return;
+
+    setIsTranslating(true);
+
+    try {
+      // Get current page content and translate it
+      const contentElement = document.querySelector('.theme-doc-markdown, .markdown');
+      if (contentElement) {
+        const content = contentElement.innerHTML;
+
+        // Send to translation API
+        const translatedContent = await translateToUrdu(content);
+
+        // Update the page content with translated version
+        contentElement.innerHTML = translatedContent;
+      }
+    } catch (error) {
+      console.error('Translation failed:', error);
+      alert('Translation failed. Please try again.');
+    } finally {
+      setIsTranslating(false);
+    }
+  }
 
   return (
     <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ""}`}>
@@ -35,6 +62,16 @@ export function Navbar() {
         </div>
 
         <div className={styles.navActions}>
+          {/* Translation button */}
+          <button
+            className={`${styles.translateButton} ${isTranslating ? styles.translating : ''}`}
+            onClick={handleTranslateClick}
+            title="Translate to Urdu"
+            disabled={isTranslating}
+          >
+            {isTranslating ? 'Translating...' : '🇵🇰 Urdu'}
+          </button>
+
           <Link href="/login" className={styles.loginBtn}>
             Login
           </Link>
