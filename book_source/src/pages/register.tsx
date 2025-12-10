@@ -4,6 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import styles from "./register.module.css"
 import Link from "@docusaurus/Link"
+import { signup } from "../services/authService"
 
 const softwareOptions = ["Python", "C++", "ROS/ROS2", "JavaScript/Web", "Beginner"]
 const hardwareOptions = ["Arduino/ESP", "Raspberry Pi", "NVIDIA Jetson", "Desktop GPU", "None"]
@@ -29,7 +30,7 @@ const Register = () => {
     }
 
     try {
-      // await signup(email, password, softwareBackground, hardwareBackground);
+      await signup(email, password, softwareBackground, hardwareBackground);
       window.location.href = "/login"
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.")

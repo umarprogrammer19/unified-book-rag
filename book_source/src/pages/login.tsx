@@ -4,6 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import Link from "@docusaurus/Link"
 import styles from "./login.module.css"
+import { signin } from "../services/authService"
 
 const Login = () => {
   const [email, setEmail] = useState("")
@@ -16,7 +17,7 @@ const Login = () => {
     setLoading(true)
     setError(null)
     try {
-      // await signin(email, password);
+      await signin(email, password);
       window.location.href = "/"
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.")
