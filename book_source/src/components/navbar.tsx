@@ -52,9 +52,6 @@ export function Navbar() {
                 </button>
                 <div className={styles.dropdownMenu}>
                   <div className={styles.userInfo}>
-                    <div className={styles.userInitialsLarge}>
-                      {user?.email?.charAt(0).toUpperCase() || 'U'}
-                    </div>
                     <div>
                       <div className={styles.userEmail}>{user?.email}</div>
                       <div className={styles.userRole}>Student</div>
