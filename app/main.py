@@ -17,7 +17,10 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Or ["*"] for development
+    allow_origins=[
+        "http://localhost:3000",
+        "https://unified-book-rag.vercel.app",
+    ],  # Or ["*"] for development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
