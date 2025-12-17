@@ -11,11 +11,15 @@ app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5000'],
   credentials: true
 }));
-app.use(express.json()); 
+app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/translate', translationRoutes);
+
+app.get("/", (req, res) => { 
+  res.send("Unified Book Rag Server Is Running Correctly");
+})
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
