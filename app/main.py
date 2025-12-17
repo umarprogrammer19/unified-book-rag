@@ -60,7 +60,7 @@ async def chat_endpoint(request: ChatRequest):
 if __name__ == "__main__":
     # For local development, you can run this file directly:
     # python app/main.py
-    host = os.getenv("HOST", "0.0.0.0")
-    port = int(os.getenv("PORT", 8000))
+    host = os.getenv("HOST")
+    port = int(os.getenv("PORT"))
 
     uvicorn.run(app, host=host, port=port)
