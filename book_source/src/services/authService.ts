@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = "get from env BASE_URL" || 'http://localhost:5000';
 
 export const signin = async (email: string, password: string) => {
   const response = await fetch(`${BASE_URL}/api/auth/signin`, {
