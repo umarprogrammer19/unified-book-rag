@@ -1,18 +1,24 @@
 import Link from "@docusaurus/Link";
 import { useEffect, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import styles from "./navbar.module.css";
 
 export function Navbar() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const { user, logout, isLoggedIn } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20)
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ""}`}>
@@ -35,18 +41,50 @@ export function Navbar() {
         </div>
 
         <div className={styles.navActions}>
-          <Link href="/login" className={styles.loginBtn}>
-            Login
-          </Link>
-          <Link href="/register" className={styles.signupBtn}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="8.5" cy="7" r="4" />
-              <line x1="20" y1="8" x2="20" y2="14" />
-              <line x1="23" y1="11" x2="17" y2="11" />
-            </svg>
-            Sign Up
-          </Link>
+          {isLoggedIn ? (
+            // User profile dropdown when logged in
+            <div className={styles.userProfile}>
+              <div className={styles.userDropdown}>
+                <button className={styles.userButton}>
+                  <span className={styles.userInitials}>
+                    {user?.email?.charAt(0).toUpperCase() || 'U'}
+                  </span>
+                </button>
+                <div className={styles.dropdownMenu}>
+                  <div className={styles.userInfo}>
+                    <div className={styles.userInitialsLarge}>
+                      {user?.email?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <div>
+                      <div className={styles.userEmail}>{user?.email}</div>
+                      <div className={styles.userRole}>Student</div>
+                    </div>
+                  </div>
+                  <div className={styles.dropdownActions}>
+                    <button className={styles.dropdownAction} onClick={handleLogout}>
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Login/Signup buttons when not logged in
+            <>
+              <Link href="/login" className={styles.loginBtn}>
+                Login
+              </Link>
+              <Link href="/register" className={styles.signupBtn}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="8.5" cy="7" r="4" />
+                  <line x1="20" y1="8" x2="20" y2="14" />
+                  <line x1="23" y1="11" x2="17" y2="11" />
+                </svg>
+                Sign Up
+              </Link>
+            </>
+          )}
           <Link href="/docs/Module 01 Hardware-Lab/1.1-physical-ai-foundations-basics" className={styles.ctaButton}>
             Start Learning
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -87,12 +125,26 @@ export function Navbar() {
           Documentation
         </Link>
         <div className={styles.mobileActions}>
-          <Link href="/login" className={styles.mobileLoginBtn} onClick={() => setIsOpen(false)}>
-            Login
-          </Link>
-          <Link href="/register" className={styles.mobileSignupBtn} onClick={() => setIsOpen(false)}>
-            Sign Up
-          </Link>
+          {isLoggedIn ? (
+            <button
+              className={styles.mobileLoginBtn}
+              onClick={() => {
+                handleLogout();
+                setIsOpen(false);
+              }}
+            >
+              Logout
+            </button>
+          ) : (
+            <>
+              <Link href="/login" className={styles.mobileLoginBtn} onClick={() => setIsOpen(false)}>
+                Login
+              </Link>
+              <Link href="/register" className={styles.mobileSignupBtn} onClick={() => setIsOpen(false)}>
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
         <Link
           href="/docs/Module 01 Hardware-Lab/1.1-physical-ai-foundations-basics"

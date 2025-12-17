@@ -10,6 +10,13 @@ const config: Config = {
   tagline: 'Your Comprehensive Guide to Mastering Generative AI',
   favicon: 'img/robotics_favicon.ico',
 
+  // Expose environment variables to the client
+  customFields: {
+    swizzleActive: true,
+    REACT_APP_AUTH_BASE_URL: process.env.REACT_APP_AUTH_BASE_URL || 'https://unified-book-rag-server.vercel.app',
+    REACT_APP_RAG_BASE_URL: process.env.REACT_APP_RAG_BASE_URL || 'https://unified-book-rag.onrender.com',
+  },
+
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4

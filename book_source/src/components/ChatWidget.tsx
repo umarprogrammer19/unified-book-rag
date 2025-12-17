@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
+import { RAG_BASE_URL } from "../utils/env"
 import styles from "./chat-widget.module.css"
 
 interface Message {
@@ -35,7 +36,7 @@ const ChatWidget: React.FC = () => {
     setIsLoading(true)
 
     try {
-      const response = await fetch("https://unified-book-rag.onrender.com/api/chat", {
+      const response = await fetch(`${RAG_BASE_URL}/api/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

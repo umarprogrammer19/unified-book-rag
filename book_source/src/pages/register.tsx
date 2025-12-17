@@ -4,7 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import styles from "./register.module.css"
 import Link from "@docusaurus/Link"
-import { signup } from "../services/authService"
+import { useAuth } from "../contexts/AuthContext"
 
 const softwareOptions = ["Python", "C++", "ROS/ROS2", "JavaScript/Web", "Beginner"]
 const hardwareOptions = ["Arduino/ESP", "Raspberry Pi", "NVIDIA Jetson", "Desktop GPU", "None"]
@@ -17,6 +17,7 @@ const Register = () => {
   const [hardwareBackground, setHardwareBackground] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { register } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,8 +31,8 @@ const Register = () => {
     }
 
     try {
-      await signup(email, password, softwareBackground, hardwareBackground);
-      window.location.href = "/login"
+      await register(email, password, softwareBackground, hardwareBackground);
+      window.location.href = "/"
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.")
     } finally {

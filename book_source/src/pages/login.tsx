@@ -4,20 +4,21 @@ import type React from "react"
 import { useState } from "react"
 import Link from "@docusaurus/Link"
 import styles from "./login.module.css"
-import { signin } from "../services/authService"
+import { useAuth } from "../contexts/AuthContext"
 
 const Login = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
     try {
-      await signin(email, password);
+      await login(email, password);
       window.location.href = "/"
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.")
