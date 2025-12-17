@@ -6,9 +6,9 @@ from starlette.responses import StreamingResponse
 import uvicorn
 import json
 from dotenv import load_dotenv
-import os 
+import os
 
-load_dotenv() # Load environment variables as early as possible
+load_dotenv()  # Load environment variables as early as possible
 
 from app.services.ingestion import ingest_book
 from app.agent import get_rag_agent_response
@@ -23,16 +23,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Pydantic models for ChatKit compatibility
 class ChatMessage(BaseModel):
     role: str
     content: str
 
+
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
 
+
 class ChatResponse(BaseModel):
     messages: List[ChatMessage]
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -40,13 +44,15 @@ async def startup_event():
     await ingest_book()
     print("Book content ingestion completed.")
 
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
 
+
 @app.post("/api/chat")
 async def chat_endpoint(request: ChatRequest):
-    user_message = request.messages[-1].content # Get the latest user message
+    user_message = request.messages[-1].content  # Get the latest user message
     print(f"Received chat message: {user_message}")
 
     async def generate_response_stream():
@@ -55,12 +61,16 @@ async def chat_endpoint(request: ChatRequest):
             # or {"sources": "..."}
             yield json.dumps(chunk) + "\n"
 
-    return StreamingResponse(generate_response_stream(), media_type="application/x-ndjson")
+    return StreamingResponse(
+        generate_response_stream(), media_type="application/x-ndjson"
+    )
+
 
 if __name__ == "__main__":
     # For local development, you can run this file directly:
     # python app/main.py
-    host = os.getenv("HOST")
-    port = int(os.getenv("PORT"))
+    port = int(os.getenv("PORT", 8000))  # Default to 8000 if PORT is not set
 
-    uvicorn.run(app, host=host, port=port)
+    uvicorn.run(
+        app, host="0.0.0.0", port=port
+    ) 
