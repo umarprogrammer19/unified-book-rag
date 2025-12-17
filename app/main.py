@@ -6,6 +6,7 @@ from starlette.responses import StreamingResponse
 import uvicorn
 import json
 from dotenv import load_dotenv
+import os 
 
 load_dotenv() # Load environment variables as early as possible
 
@@ -59,4 +60,7 @@ async def chat_endpoint(request: ChatRequest):
 if __name__ == "__main__":
     # For local development, you can run this file directly:
     # python app/main.py
-    uvicorn.run(app)
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", 8000))
+
+    uvicorn.run(app, host=host, port=port)
